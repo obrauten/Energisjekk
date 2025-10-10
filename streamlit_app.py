@@ -130,7 +130,7 @@ with left:
         f"{label}</div>",
         unsafe_allow_html=True
     )
-    st.markdown("<div style='height:25px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:15px;'></div>", unsafe_allow_html=True)
     # Kompakt søyle under karakteren
     # --- Overskrift utenfor figuren (samme stil som de andre) ---
 st.markdown(

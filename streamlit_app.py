@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Energisjekk", layout="wide")
 
+# ---------- OVERSKRIFT ----------
+st.title("💡 Energisjekk")
+st.markdown(
+    "<h4 style='color:#097E3E;margin-top:-10px;'>Rask vurdering av energibruk og energikarakter</h4>",
+    unsafe_allow_html=True
+)
+
+st.set_page_config(page_title="Energisjekk", layout="wide")
+
 # ---------------- Colors / Brand ----------------
 PRIMARY   = "#097E3E"   # mørk grønn (titler/aksene)
 SECONDARY = "#33C831"   # lys grønn (nøkkeltall)

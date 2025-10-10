@@ -5,28 +5,31 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import base64, pathlib
 
-# --- Les logo som base64 (robust for Streamlit Cloud) ---
+# --- Les logoen (ny versjon) ---
 logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")
 logo_b64 = None
 if logo_path.exists():
     logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
 
-# --- CSS + HTML for header ---
+# --- CSS + HTML for header med logo til venstre ---
 st.markdown(f"""
 <style>
-/* Hovedcontainer */
 .ep-header {{
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-start;    /* logo til venstre */
+  gap: 16px;
   padding: 6px 0 8px;
   border-bottom: 1px solid #d9d9d9;
   margin-bottom: 10px;
-  flex-wrap: nowrap;  /* ingen linjebrekk */
+  flex-wrap: nowrap;
 }}
-
-/* Tekst */
+.ep-logo img {{
+  display: block;
+  height: auto;
+  max-width: 150px;
+  flex-shrink: 0;
+}}
 .ep-headings h1 {{
   color: #097E3E;
   font-weight: 700;
@@ -38,37 +41,20 @@ st.markdown(f"""
   margin: 2px 0 0 0;
   line-height: 1.25;
 }}
-
-/* Logo */
-.ep-logo img {{
-  display: block;
-  height: auto;
-  max-width: 150px;   /* tilpass størrelse */
-  flex-shrink: 0;
-  margin-top: 2px;    /* hindrer kuttet p */
-}}
-
-/* Mobiltilpasning */
-@media (max-width: 600px) {{
-  .ep-logo img {{
-    max-width: 100px;
-  }}
-  .ep-headings h1 {{
-    font-size: 1.6rem;
-  }}
-  .ep-headings h4 {{
-    font-size: 1.0rem;
-  }}
+@media (max-width: 600px){{
+  .ep-logo img {{ max-width: 100px; }}
+  .ep-headings h1 {{ font-size: 1.6rem; }}
+  .ep-headings h4 {{ font-size: 1.0rem; }}
 }}
 </style>
 
 <div class="ep-header">
+  <div class="ep-logo">
+    {"<img src='data:image/png;base64," + logo_b64 + "' alt='EnergiPartner logo'/>" if logo_b64 else ""}
+  </div>
   <div class="ep-headings">
     <h1>💡 Energisjekk</h1>
     <h4>Rask vurdering av energibruk og energikarakter</h4>
-  </div>
-  <div class="ep-logo">
-    {"<img src='data:image/png;base64," + logo_b64 + "' alt='EnergiPartner logo'/>" if logo_b64 else ""}
   </div>
 </div>
 """, unsafe_allow_html=True)

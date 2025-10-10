@@ -43,11 +43,20 @@ CATEGORIES = [
 c1, c2, c3 = st.columns([1.2, 1, 1])
 with c1:
     kategori = st.selectbox("Bygningskategori", CATEGORIES, index=1)
-with c2:
-    arsforbruk = st.number_input("Årsforbruk (kWh)", value=500_900, min_value=0, step=10_000, format="%i")
-with c3:
-    areal = st.number_input("Oppvarmet areal (m² BRA)", value=3000, min_value=1, step=100, format="%i")
+def parse_int_with_spaces(text: str, default=0):
+    """Tar imot tekst med mellomrom og returnerer heltall."""
+    try:
+        return int(text.replace(" ", "").replace(",", ""))
+    except ValueError:
+        return default
 
+with c2:
+    arsforbruk_txt = st.text_input("Årsforbruk (kWh)", fmt_int(500_900))
+    arsforbruk = parse_int_with_spaces(arsforbruk_txt, 500_900)
+
+with c3:
+    areal_txt = st.text_input("Oppvarmet areal (m² BRA)", fmt_int(3000))
+    areal = parse_int_with_spaces(areal_txt, 3000)
 sp = arsforbruk / areal
 
 # ---------------- Formålsfordeling (prosent) ----------------

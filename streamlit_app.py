@@ -3,9 +3,9 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Energisjekk", layout="wide")
-st.markdown("<h1 style='color:#097E3E;font-weight:700;'>💡 Energisjekk</h1>", unsafe_allow_html=True)
+
 # ---------- OVERSKRIFT ----------
-st.title("💡 Energisjekk")
+st.markdown("<h1 style='color:#097E3E;font-weight:700;'>💡 Energisjekk</h1>", unsafe_allow_html=True)
 st.markdown(
     "<h4 style='color:#097E3E;margin-top:-10px;'>Rask vurdering av energibruk og energikarakter</h4>",
     unsafe_allow_html=True

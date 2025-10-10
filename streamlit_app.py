@@ -141,7 +141,7 @@ with left:
     ax2.set_ylim(0, max(vals)*1.25)
     ax2.set_title(
     "Gjennomsnittlig årlig energibruk pr. kvadratmeter\noppvarmet areal",
-    fontsize=18, color=PRIMARY, fontweight="bold", pad=10
+    fontsize=18, color=PRIMARY, pad=10
 )
     for t in ax2.get_xticklabels():
         t.set_rotation(20); t.set_ha("right")

@@ -154,6 +154,7 @@ with left:
     st.pyplot(fig2, use_container_width=True)
 
 # ----- HØYRE: kakediagram (prosent + kWh) -----
+st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
 with right:
     shares = SHARES[kategori]
     kwh_map = {k: arsforbruk*(p/100) for k, p in shares.items()}

@@ -193,39 +193,3 @@ with right:
     ax.axis("equal")
     st.pyplot(fig, use_container_width=True)
 
-    # Typiske tiltak – beregnet mot formålsandeler
-    MEASURE_DATA = {
-        "Varmepumpe / varmegjenvinning": {
-            "reduction_pct": (10, 50),
-            "related_keys": ["Oppvarming", "Tappevann"],
-            "description": "Tiltak på varme- og tappevannssystemer"
-        },
-        "Ventilasjon": {
-            "reduction_pct": (10, 30),
-            "related_keys": ["Ventilasjon"],
-            "description": "VAV, behovsstyring og SFP-optimalisering"
-        },
-        "Belysning (LED + styring)": {
-            "reduction_pct": (40, 60),
-            "related_keys": ["Belysning"],
-            "description": "LED, dagslys- og tilstedeværelsesstyring"
-        },
-    }
-
-    results = []
-    for tiltak, data in MEASURE_DATA.items():
-        andel = sum(pct.get(k, 0) for k in data["related_keys"])
-        lav, høy = data["reduction_pct"]
-        kwh_dagens = arsforbruk * (andel / 100)
-        spare_lav = kwh_dagens * lav / 100
-        spare_høy = kwh_dagens * høy / 100
-        results.append({
-            "Tiltak": tiltak,
-            "Andel i bygget": f"{andel:.0f} %",
-            "Typisk besparelse": f"{lav} – {høy} %",
-            "Potensial (kWh/år)": f"{fmt_int(spare_lav)} – {fmt_int(spare_høy)}"
-        })
-
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Typiske tiltak og potensial (Enova)</h3>", unsafe_allow_html=True)
-    st.table(pd.DataFrame(results))
-    # st.caption("Tallgrunnlag: Enova ET 2019-10, ER 2020-23, NVE 2016-24. Intervaller viser typisk energibesparelse i eksisterende næringsbygg.")

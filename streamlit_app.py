@@ -157,7 +157,7 @@ with left:
     buf = io.BytesIO()
     fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
     buf.seek(0)
-    st.image(buf, width=420)  # juster 380–460 ved behov
+    st.image(buf, width=480)  # juster 380–460 ved behov
 
 # ========== HØYRE ==========
 with right:

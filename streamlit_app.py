@@ -6,22 +6,16 @@ import pandas as pd
 
 # --- Konfig / tittel ---
 st.set_page_config(page_title="Energisjekk", layout="wide")
-# --- Logo + tittel ---
-st.markdown(
-    """
-    <div style='display:flex;justify-content:space-between;align-items:center;'>
-        <div>
-            <h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>
-            <h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>
-        </div>
-        <div>
-            <img src='EnergiPartner_RGB.png' width='130' style='margin-left:15px;'>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
+# --- Tittel + logo øverst (høyre) ---
+left_hdr, right_hdr = st.columns([1, 0.22])
+with left_hdr:
+    st.markdown(
+        "<h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>"
+        "<h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>",
+        unsafe_allow_html=True
+    )
+with right_hdr:
+    st.image("EnergiPartner_RGB.png", width=130)
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

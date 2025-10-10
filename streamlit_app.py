@@ -1,30 +1,25 @@
 # streamlit_app.py
+import io
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# --- Konfig / tittel ---
 st.set_page_config(page_title="Energisjekk", layout="wide")
-
-# ---------- OVERSKRIFT ----------
 st.markdown("<h1 style='color:#097E3E;font-weight:700;'>💡 Energisjekk</h1>", unsafe_allow_html=True)
-st.markdown(
-    "<h4 style='color:#097E3E;margin-top:-10px;'>Rask vurdering av energibruk og energikarakter</h4>",
-    unsafe_allow_html=True
-)
+st.markdown("<h4 style='color:#097E3E;margin-top:-10px;'>Rask vurdering av energibruk og energikarakter</h4>", unsafe_allow_html=True)
 
-st.set_page_config(page_title="Energisjekk", layout="wide")
-
-# ---------------- Colors / Brand ----------------
-PRIMARY   = "#097E3E"   # mørk grønn (titler/aksene)
-SECONDARY = "#33C831"   # lys grønn (nøkkeltall)
-BAR_LIGHT = "#A8E6A1"   # lys grønn til historikkstolper
-BAR_DARK  = PRIMARY     # mørk grønn til AKTUELT BYGG
+# --- Farger / profil ---
+PRIMARY   = "#097E3E"   # mørk grønn
+SECONDARY = "#33C831"   # lys grønn
+BAR_LIGHT = "#A8E6A1"   # historikkstolper
+BAR_DARK  = PRIMARY     # "AKTUELT BYGG"
 BADGE_COLORS = {
     "A": "#2E7D32", "B": "#4CAF50", "C": "#9CCC65",
     "D": "#FFEB3B", "E": "#FFC107", "F": "#FF9800", "G": "#F44336"
 }
 
-# ---------------- Helpers ----------------
+# --- Hjelpere ---
 def fmt_int(x: float) -> str:
     return f"{x:,.0f}".replace(",", " ")
 
@@ -34,7 +29,13 @@ def energy_label(sp_kwh_m2: float, thresholds: dict[str, float]) -> str:
             return letter
     return "G"
 
-# ---------------- Inputs ----------------
+def parse_int_with_spaces(text: str, default=0):
+    try:
+        return int(text.replace(" ", "").replace(",", ""))
+    except ValueError:
+        return default
+
+# --- Inndata ---
 CATEGORIES = [
     "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
     "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
@@ -44,23 +45,16 @@ CATEGORIES = [
 c1, c2, c3 = st.columns([1.2, 1, 1])
 with c1:
     kategori = st.selectbox("Bygningskategori", CATEGORIES, index=1)
-def parse_int_with_spaces(text: str, default=0):
-    """Tar imot tekst med mellomrom og returnerer heltall."""
-    try:
-        return int(text.replace(" ", "").replace(",", ""))
-    except ValueError:
-        return default
-
 with c2:
     arsforbruk_txt = st.text_input("Årsforbruk (kWh)", fmt_int(500_900))
     arsforbruk = parse_int_with_spaces(arsforbruk_txt, 500_900)
-
 with c3:
     areal_txt = st.text_input("Oppvarmet areal (m² BRA)", fmt_int(3000))
     areal = parse_int_with_spaces(areal_txt, 3000)
+
 sp = arsforbruk / areal
 
-# ---------------- Formålsfordeling (prosent) ----------------
+# --- Formålsdeling (prosent) ---
 SHARES = {
     "Barnehage":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":14,"Belysning":9,"El.spesifikk":13,"Kjøling":0},
     "Kontorbygning":{"Oppvarming":31,"Tappevann":5,"Ventilasjon":10,"Belysning":16,"El.spesifikk":31,"Kjøling":7},
@@ -76,7 +70,7 @@ SHARES = {
     "Kombinasjon":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":10,"Belysning":15,"El.spesifikk":9,"Kjøling":0},
 }
 
-# ---------------- Enova-referanser (kWh/m²·år) til søylediagram ----------------
+# --- Enova-referanser (kWh/m²·år) til søylediagram ---
 REF = {
     "labels":["1950 og eldre","1951–1970","1971–1988","1989–1998","1999–2008","2009–2020"],
     "Barnehage":[407.1,374.5,263.4,231.6,190.0,157.5],
@@ -93,7 +87,7 @@ REF = {
     "Kombinasjon":[350.8,324.0,264.7,230.2,199.2,171.5],
 }
 
-# ---------------- Energikarakter terskler (kWh/m²·år) ----------------
+# --- Energikarakter terskler (kWh/m²·år) ---
 THRESH = {
     "Barnehage":dict(A=85,B=115,C=145,D=180,E=220,F=275),
     "Kontorbygning":dict(A=90,B=115,C=145,D=180,E=220,F=275),
@@ -112,148 +106,126 @@ THRESH = {
 label = energy_label(sp, THRESH.get(kategori, THRESH["Kombinasjon"]))
 badge_color = BADGE_COLORS[label]
 
-# ---------------- Layout ----------------
+# --- Layout ---
 left, right = st.columns([1.05, 1])
 
-# ----- VENSTRE: nøkkeltall + energikarakter + kompakt søyle -----
+# ========== VENSTRE ==========
 with left:
+    # Nøkkeltall
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0;'>Årsforbruk</h3>", unsafe_allow_html=True)
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
 
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0;'>Spesifikt årsforbruk</h3>", unsafe_allow_html=True)
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>", unsafe_allow_html=True)
 
-    # Endret fra <div> til <h3> for likt utseende
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Kalkulert energikarakter*</h3>", unsafe_allow_html=True)
     st.markdown(
         f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
-        f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"
+        f"background:{badge_color};color:white;font-weight:900;font-size:40px;margin-bottom:8px;'>"
         f"{label}</div>",
         unsafe_allow_html=True
     )
-   
-    # Kompakt søyle under karakteren
-    # --- Overskrift utenfor figuren (samme stil som de andre) ---
-st.markdown(
-    f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Energibruk pr. m² (referanse vs. bygg)</h3>",
-    unsafe_allow_html=True
-)
 
-# --- Data til søylediagram ---
-cols = REF["labels"] + ["AKTUELT BYGG"]
-vals = REF[kategori] + [sp]
+    # Overskrift + søylediagram (kompakt)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Energibruk pr. m² (referanse vs. bygg)</h3>", unsafe_allow_html=True)
 
-# --- Kompakt figur (mindre høyde) ---
-fig2, ax2 = plt.subplots(figsize=(4.8, 2.3))  # mindre bredde og høyde
-colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]  # grønn for aktuelt bygg
-bars = ax2.bar(cols, vals, color=colors, width=0.55)
+    cols = REF["labels"] + ["AKTUELT BYGG"]
+    vals = REF[kategori] + [sp]
 
-# Y-akse og utseende
-ax2.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
-ax2.set_ylim(0, max(vals) * 1.25)
-ax2.spines["top"].set_visible(False)
-ax2.spines["right"].set_visible(False)
+    fig2, ax2 = plt.subplots(figsize=(4.2, 2.2))
+    colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]
+    bars = ax2.bar(cols, vals, color=colors, width=0.55)
 
-# X-etiketter
-for t in ax2.get_xticklabels():
-    t.set_rotation(20)
-    t.set_ha("right")
+    ax2.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
+    ax2.set_ylim(0, max(vals) * 1.25)
+    ax2.spines["top"].set_visible(False)
+    ax2.spines["right"].set_visible(False)
 
-# Verdimerker over stolpene
-for b, v in zip(bars, vals):
-    ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
-             ha="center", va="bottom", fontsize=8, color=PRIMARY)
+    for t in ax2.get_xticklabels():
+        t.set_rotation(20)
+        t.set_ha("right")
 
-# Marker "AKTUELT BYGG" uten ramme
-bars[-1].set_linewidth(0)   # ← ingen kantlinje
-bars[-1].set_alpha(0.9)     # litt fyldigere farge
+    for b, v in zip(bars, vals):
+        ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
+                 ha="center", va="bottom", fontsize=8, color=PRIMARY)
 
-# --- Vis figuren i fast bredde (ikke auto-skaler) ---
-import io
-buf = io.BytesIO()
-fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
-buf.seek(0)
-st.image(buf, width=460)   # << justér 380–460 for å matche kakediagrammet
+    # Uten kantlinje rundt "AKTUELT BYGG"
+    bars[-1].set_linewidth(0)
+    bars[-1].set_alpha(0.95)
 
+    # Vises i fast bredde slik at den ikke blåses opp
+    buf = io.BytesIO()
+    fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
+    buf.seek(0)
+    st.image(buf, width=420)  # juster 380–460 ved behov
 
-# ----- HØYRE: kakediagram (prosent + kWh) -----
-st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+# ========== HØYRE ==========
 with right:
-    # --- Farger og rekkefølge for sektorer ---
+    # Pie med egendefinerte farger og rekkefølge (med klokka)
     FORMAL_ORDER = ["Oppvarming", "Tappevann", "Ventilasjon", "Belysning", "El.spesifikk", "Kjøling"]
     FORMAL_COLORS = {
-        "Oppvarming":  "#33C831",  # lys grønn
-        "Tappevann":   "#097E3E",  # mørk grønn
-        "Ventilasjon": "#74D680",  # mellomgrønn
-        "Belysning":   "#FFC107",  # gul
-        "El.spesifikk":"#2E7BB4",  # blå
-        "Kjøling":     "#00ACC1",  # turkis
+        "Oppvarming":  "#33C831",
+        "Tappevann":   "#097E3E",
+        "Ventilasjon": "#74D680",
+        "Belysning":   "#FFC107",
+        "El.spesifikk":"#2E7BB4",
+        "Kjøling":     "#00ACC1",
     }
 
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
 
-    # Hent data og sorter i ønsket rekkefølge (med klokka)
     pct = SHARES[kategori]
     ordered_pct = {k: pct[k] for k in FORMAL_ORDER if k in pct}
     kwh = {k: arsforbruk * (v / 100) for k, v in ordered_pct.items()}
 
-    # Lag etiketter med både kWh og prosent
     labels = [f"{navn}\n{fmt_int(verdi)} kWh" for navn, verdi in kwh.items()]
     colors = [FORMAL_COLORS[n] for n in kwh.keys()]
 
-    # Tegn kakediagram
-    fig, ax = plt.subplots(figsize=(5.8, 5.2))
+    fig, ax = plt.subplots(figsize=(5.2, 4.6))
     ax.pie(
         list(kwh.values()),
         labels=labels,
         colors=colors,
         autopct=lambda p: f"{p:.1f}%",
-        startangle=90,      # start kl. 12
-        counterclock=False  # MED klokka
+        startangle=90,
+        counterclock=False
     )
     ax.axis("equal")
     st.pyplot(fig, use_container_width=True)
-    
-# --- Typiske tiltak og potensial (Enova) ---
-st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Typiske tiltak og potensial (Enova)</h3>", unsafe_allow_html=True)
-st.table(pd.DataFrame(results))
-st.caption("Tallgrunnlag: Enova ET 2019-10, ER 2020-23, NVE 2016-24. Intervaller viser typisk energibesparelse i eksisterende næringsbygg.")
 
-    
-# --- Typiske tiltak og besparelse basert på Enova/NVE ---
-MEASURE_DATA = {
-    "Varmepumpe / varmegjenvinning": {
-        "reduction_pct": (10, 50),
-        "related_keys": ["Oppvarming", "Tappevann"],
-        "description": "Tiltak på varme- og tappevannssystemer"
-    },
-    "Ventilasjon": {
-        "reduction_pct": (10, 30),
-        "related_keys": ["Ventilasjon"],
-        "description": "VAV, behovsstyring og SFP-optimalisering"
-    },
-    "Belysning (LED + styring)": {
-        "reduction_pct": (40, 60),
-        "related_keys": ["Belysning"],
-        "description": "LED, dagslys- og tilstedeværelsesstyring"
-    },
-}
+    # Typiske tiltak – beregnet mot formålsandeler
+    MEASURE_DATA = {
+        "Varmepumpe / varmegjenvinning": {
+            "reduction_pct": (10, 50),
+            "related_keys": ["Oppvarming", "Tappevann"],
+            "description": "Tiltak på varme- og tappevannssystemer"
+        },
+        "Ventilasjon": {
+            "reduction_pct": (10, 30),
+            "related_keys": ["Ventilasjon"],
+            "description": "VAV, behovsstyring og SFP-optimalisering"
+        },
+        "Belysning (LED + styring)": {
+            "reduction_pct": (40, 60),
+            "related_keys": ["Belysning"],
+            "description": "LED, dagslys- og tilstedeværelsesstyring"
+        },
+    }
 
-results = []
-for tiltak, data in MEASURE_DATA.items():
-    # Finn andel av totalt forbruk basert på relevante formål
-    andel = sum(pct.get(k, 0) for k in data["related_keys"])
-    lav, høy = data["reduction_pct"]
-    kwh_dagens = arsforbruk * (andel / 100)
-    spare_lav = kwh_dagens * lav / 100
-    spare_høy = kwh_dagens * høy / 100
-    results.append({
-        "Tiltak": tiltak,
-        "Andel i bygget": f"{andel:.0f} %",
-        "Typisk besparelse": f"{lav} – {høy} %",
-        "Potensial (kWh/år)": f"{fmt_int(spare_lav)} – {fmt_int(spare_høy)}"
-    })
+    results = []
+    for tiltak, data in MEASURE_DATA.items():
+        andel = sum(pct.get(k, 0) for k in data["related_keys"])
+        lav, høy = data["reduction_pct"]
+        kwh_dagens = arsforbruk * (andel / 100)
+        spare_lav = kwh_dagens * lav / 100
+        spare_høy = kwh_dagens * høy / 100
+        results.append({
+            "Tiltak": tiltak,
+            "Andel i bygget": f"{andel:.0f} %",
+            "Typisk besparelse": f"{lav} – {høy} %",
+            "Potensial (kWh/år)": f"{fmt_int(spare_lav)} – {fmt_int(spare_høy)}"
+        })
 
-
-
-# (Ingen tabell nederst. Ingen ekstra tekst.)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Typiske tiltak og potensial (Enova)</h3>", unsafe_allow_html=True)
+    st.table(pd.DataFrame(results))
+    # st.caption("Tallgrunnlag: Enova ET 2019-10, ER 2020-23, NVE 2016-24. Intervaller viser typisk energibesparelse i eksisterende næringsbygg.")

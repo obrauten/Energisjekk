@@ -140,9 +140,7 @@ with left:
     bars = ax2.bar(cols, vals, color=colors, width=0.55)
     ax2.set_ylabel("kWh/m²", fontsize=11, color=PRIMARY)
     ax2.set_ylim(0, max(vals)*1.25)
-    ax2.set_title("Gj.snittlig årlig energibruk pr. m² oppvarmet areal",
-    fontsize=18, color=PRIMARY, pad=10
-)
+ 
     for t in ax2.get_xticklabels():
         t.set_rotation(20); t.set_ha("right")
     # verdietiketter

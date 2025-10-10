@@ -1,37 +1,47 @@
-import math
+# streamlit_app.py
 import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Energisjekk", layout="wide")
 
-# ---------- Hjelpere ----------
+# ---------------- Colors / Brand ----------------
+PRIMARY   = "#097E3E"   # mørk grønn (titler/aksene)
+SECONDARY = "#33C831"   # lys grønn (nøkkeltall)
+BAR_LIGHT = "#A8E6A1"   # lys grønn til historikkstolper
+BAR_DARK  = PRIMARY     # mørk grønn til AKTUELT BYGG
+BADGE_COLORS = {
+    "A": "#2E7D32", "B": "#4CAF50", "C": "#9CCC65",
+    "D": "#FFEB3B", "E": "#FFC107", "F": "#FF9800", "G": "#F44336"
+}
+
+# ---------------- Helpers ----------------
 def fmt_int(x: float) -> str:
     return f"{x:,.0f}".replace(",", " ")
 
-def energy_label(sp_kwh_m2: float, thresholds: dict[str, float]) -> tuple[str, str]:
+def energy_label(sp_kwh_m2: float, thresholds: dict[str, float]) -> str:
     for letter in ["A", "B", "C", "D", "E", "F"]:
         if sp_kwh_m2 <= thresholds[letter]:
-            color = {
-                "A":"#2E7D32", "B":"#4CAF50", "C":"#9CCC65",
-                "D":"#FFEB3B", "E":"#FFC107", "F":"#FF9800",
-            }[letter]
-            return letter, color
-    return "G", "#F44336"
+            return letter
+    return "G"
 
-# ---------- Inndata ----------
-CATS = [
+# ---------------- Inputs ----------------
+CATEGORIES = [
     "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
-    "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning","Forretningsbygning",
-    "Kulturbygning","Lett industribygning, verksted","Kombinasjon",
+    "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
+    "Forretningsbygning","Kulturbygning","Lett industribygning, verksted","Kombinasjon",
 ]
-c1,c2,c3 = st.columns([1.2,1,1])
-with c1: kategori = st.selectbox("Bygningskategori", CATS, index=1)
-with c2: arsforbruk = st.number_input("Årsforbruk (kWh)", value=400_000, min_value=0, step=10_000, format="%i")
-with c3: areal = st.number_input("Oppvarmet areal BRA (m²)", value=2_000, min_value=1, step=50, format="%i")
+
+c1, c2, c3 = st.columns([1.2, 1, 1])
+with c1:
+    kategori = st.selectbox("Bygningskategori", CATEGORIES, index=1)
+with c2:
+    arsforbruk = st.number_input("Årsforbruk (kWh)", value=500_900, min_value=0, step=10_000, format="%i")
+with c3:
+    areal = st.number_input("Oppvarmet areal (m² BRA)", value=3000, min_value=1, step=100, format="%i")
+
 sp = arsforbruk / areal
 
-# ---------- Formålsdeling (prosent) ----------
+# ---------------- Formålsfordeling (prosent) ----------------
 SHARES = {
     "Barnehage":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":14,"Belysning":9,"El.spesifikk":13,"Kjøling":0},
     "Kontorbygning":{"Oppvarming":31,"Tappevann":5,"Ventilasjon":10,"Belysning":16,"El.spesifikk":31,"Kjøling":7},
@@ -47,7 +57,7 @@ SHARES = {
     "Kombinasjon":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":10,"Belysning":15,"El.spesifikk":9,"Kjøling":0},
 }
 
-# ---------- Enova referanser til søylegraf ----------
+# ---------------- Enova-referanser (kWh/m²·år) til søylediagram ----------------
 REF = {
     "labels":["1950 og eldre","1951–1970","1971–1988","1989–1998","1999–2008","2009–2020"],
     "Barnehage":[407.1,374.5,263.4,231.6,190.0,157.5],
@@ -64,7 +74,7 @@ REF = {
     "Kombinasjon":[350.8,324.0,264.7,230.2,199.2,171.5],
 }
 
-# ---------- Energikarakter terskler ----------
+# ---------------- Energikarakter terskler (kWh/m²·år) ----------------
 THRESH = {
     "Barnehage":dict(A=85,B=115,C=145,D=180,E=220,F=275),
     "Kontorbygning":dict(A=90,B=115,C=145,D=180,E=220,F=275),
@@ -79,51 +89,59 @@ THRESH = {
     "Lett industribygning, verksted":dict(A=105,B=145,C=185,D=250,E=315,F=405),
     "Kombinasjon":dict(A=95,B=135,C=175,D=215,E=255,F=320),
 }
-label, label_color = energy_label(sp, THRESH.get(kategori, THRESH["Kombinasjon"]))
 
-# ---------- Layout: venstre (tall + karakter + kompakt søyle), høyre (kake) ----------
-left, right = st.columns([1.05,1])
+label = energy_label(sp, THRESH.get(kategori, THRESH["Kombinasjon"]))
+badge_color = BADGE_COLORS[label]
 
+# ---------------- Layout ----------------
+left, right = st.columns([1.05, 1])
+
+# ----- VENSTRE: nøkkeltall + energikarakter + kompakt søyle -----
 with left:
-    st.subheader(kategori)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0'>Årsforbruk</h3>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size:38px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
+
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0'>Spesifikt årsforbruk</h3>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/ m² BRA</div>", unsafe_allow_html=True)
+
+    st.markdown(f"<div style='margin:6px 0 10px 0;color:{PRIMARY}'>Kalkulert energikarakter (faktisk levert energi):</div>", unsafe_allow_html=True)
     st.markdown(
-        f"**Årsforbruk:** {fmt_int(arsforbruk)} kWh  \n"
-        f"**Oppvarmet areal (BRA):** {fmt_int(areal)} m²  \n"
-        f"**Spesifikt energibruk:** **{sp:.1f} kWh/m²·år**"
-    )
-    st.markdown(
-        f"""<div style="display:inline-block;padding:.35rem .8rem;border-radius:.6rem;
-        background:{label_color};color:white;font-weight:700">Energikarakter: {label}</div>""",
-        unsafe_allow_html=True,
+        f"<div style='display:inline-block;padding:.45rem .9rem;border-radius:.6rem;background:{badge_color};color:white;font-weight:800;font-size:22px'>"
+        f"{label}</div>",
+        unsafe_allow_html=True
     )
 
-    # --- Kompakt søylegraf under karakteren ---
+    # Kompakt søyle under karakteren
     cols = REF["labels"] + ["AKTUELT BYGG"]
     vals = REF[kategori] + [sp]
-    fig2, ax2 = plt.subplots(figsize=(5.2,2.6))
-    colors = ["#88b7d8"]*(len(vals)-1) + ["#1976D2"]
-    edges  = ["#88b7d8"]*(len(vals)-1) + ["#0D47A1"]
-    widths = [0]* (len(vals)-1) + [2]
-    bars = ax2.bar(cols, vals, color=colors, edgecolor=edges)
-    bars[-1].set_linewidth(2)
-    ax2.set_ylabel("kWh/m²", labelpad=4)
+    fig2, ax2 = plt.subplots(figsize=(5.2, 2.6))
+    colors = [BAR_LIGHT]*(len(vals)-1) + [BAR_DARK]
+    bars = ax2.bar(cols, vals, color=colors, width=0.55)
+    ax2.set_ylabel("kWh/m²", fontsize=11, color=PRIMARY)
     ax2.set_ylim(0, max(vals)*1.25)
+    ax2.set_title("Gjennomsnittlig årlig energibruk pr kvadratmeter\noppvarmet areal",
+                  fontsize=12, color=PRIMARY, pad=8)
     for t in ax2.get_xticklabels():
-        t.set_rotation(18); t.set_ha("right")
-    for r,v in zip(bars, vals):
-        ax2.text(r.get_x()+r.get_width()/2, v+3, f"{v:.1f}", ha="center", va="bottom", fontsize=8)
+        t.set_rotation(20); t.set_ha("right")
+    # verdietiketter
+    for b, v in zip(bars, vals):
+        ax2.text(b.get_x()+b.get_width()/2, v+5, f"{v:.1f}", ha="center", va="bottom", fontsize=9, color=PRIMARY)
+    # understrek aktuelt bygg subtilt
+    bars[-1].set_linewidth(2)
+    bars[-1].set_edgecolor("#0D47A1")
     ax2.spines["top"].set_visible(False); ax2.spines["right"].set_visible(False)
     st.pyplot(fig2, use_container_width=True)
 
+# ----- HØYRE: kakediagram (prosent + kWh) -----
 with right:
-    st.subheader("Energiforbruk formålsfordelt")
-    pct = SHARES[kategori]
-    kwh = {k: arsforbruk*(p/100) for k,p in pct.items()}
-    # etiketter MED både kWh og %
-    labels = [f"{name}\n{fmt_int(val)} kWh" for name, val in kwh.items()]
-    fig, ax = plt.subplots(figsize=(5.6,5.6))
+    shares = SHARES[kategori]
+    kwh_map = {k: arsforbruk*(p/100) for k, p in shares.items()}
+    labels = [f"{name}\n{fmt_int(val)} kWh" for name, val in kwh_map.items()]
+
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(5.8, 5.2))
     ax.pie(
-        list(kwh.values()),
+        list(kwh_map.values()),
         labels=labels,
         autopct=lambda p: f"{p:.1f}%",
         startangle=90
@@ -131,4 +149,4 @@ with right:
     ax.axis("equal")
     st.pyplot(fig, use_container_width=True)
 
-# Ingen tabell under, ingen tekst nederst.
+# (Ingen tabell nederst. Ingen ekstra tekst.)

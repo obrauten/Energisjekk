@@ -5,30 +5,27 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import base64, pathlib
 
-# --- Les logoen (ny versjon) ---
+# --- Les logo som base64 (trygt for Streamlit Cloud) ---
 logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")
 logo_b64 = None
 if logo_path.exists():
     logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
 
-# --- CSS + HTML for header med logo til venstre ---
+# --- CSS + HTML for logo over tittel ---
 st.markdown(f"""
 <style>
 .ep-header {{
   display: flex;
-  align-items: center;
-  justify-content: flex-start;    /* logo til venstre */
-  gap: 16px;
-  padding: 6px 0 8px;
-  border-bottom: 1px solid #d9d9d9;
+  flex-direction: column;          /* logo over teksten */
+  align-items: flex-start;         /* venstrejustert */
+  padding-bottom: 10px;
+  border-bottom: 2px solid #097E3E; /* grønn linje under */
   margin-bottom: 10px;
-  flex-wrap: nowrap;
 }}
 .ep-logo img {{
   display: block;
-  height: auto;
-  max-width: 150px;
-  flex-shrink: 0;
+  max-width: 180px;                /* juster størrelse her */
+  margin-bottom: 4px;              /* litt luft mellom logo og tittel */
 }}
 .ep-headings h1 {{
   color: #097E3E;
@@ -42,7 +39,7 @@ st.markdown(f"""
   line-height: 1.25;
 }}
 @media (max-width: 600px){{
-  .ep-logo img {{ max-width: 100px; }}
+  .ep-logo img {{ max-width: 130px; }}
   .ep-headings h1 {{ font-size: 1.6rem; }}
   .ep-headings h4 {{ font-size: 1.0rem; }}
 }}

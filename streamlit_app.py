@@ -130,7 +130,8 @@ with left:
         f"{label}</div>",
         unsafe_allow_html=True
     )
-
+st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+    
     # Kompakt søyle under karakteren
     cols = REF["labels"] + ["AKTUELT BYGG"]
     vals = REF[kategori] + [sp]
@@ -139,8 +140,7 @@ with left:
     bars = ax2.bar(cols, vals, color=colors, width=0.55)
     ax2.set_ylabel("kWh/m²", fontsize=11, color=PRIMARY)
     ax2.set_ylim(0, max(vals)*1.25)
-    ax2.set_title(
-    "Gjennomsnittlig årlig energibruk pr. kvadratmeter\noppvarmet areal",
+    ax2.set_title("Gj.snittlig årlig energibruk pr. m² oppvarmet areal",
     fontsize=18, color=PRIMARY, pad=10
 )
     for t in ax2.get_xticklabels():

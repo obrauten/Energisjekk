@@ -134,6 +134,8 @@ with left:
     # Kompakt søyle under karakteren
     cols = REF["labels"] + ["AKTUELT BYGG"]
     vals = REF[kategori] + [sp]
+    
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Gjennomsnittlig årlig energibruk pr. m² oppvarmet areal</h3>", unsafe_allow_html=True)
     fig2, ax2 = plt.subplots(figsize=(5.2, 2.6))
     colors = [BAR_LIGHT]*(len(vals)-1) + [BAR_DARK]
     bars = ax2.bar(cols, vals, color=colors, width=0.55)
@@ -149,8 +151,6 @@ with left:
         ax2.text(b.get_x()+b.get_width()/2, v+5, f"{v:.1f}", ha="center", va="bottom", fontsize=9, color=PRIMARY)
     # understrek aktuelt bygg subtilt
     bars[-1].set_linewidth(2)
-    ax2.spines["top"].set_visible(False); ax2.spines["right"].set_visible(False)
-    st.pyplot(fig2, use_container_width=True)
 
 # ----- HØYRE: kakediagram (prosent + kWh) -----
 st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)

@@ -130,7 +130,7 @@ with left:
         f"{label}</div>",
         unsafe_allow_html=True
     )
-    
+    st.markdown("<div style='height:25px;'></div>", unsafe_allow_html=True)
     # Kompakt søyle under karakteren
     cols = REF["labels"] + ["AKTUELT BYGG"]
     vals = REF[kategori] + [sp]

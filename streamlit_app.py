@@ -142,13 +142,13 @@ st.markdown(
 cols = REF["labels"] + ["AKTUELT BYGG"]
 vals = REF[kategori] + [sp]
 
-# --- Selve figuren ---
-fig2, ax2 = plt.subplots(figsize=(5.2, 2.6))  # ikke fjern denne
-colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]
+# --- Kompakt figur (mindre høyde) ---
+fig2, ax2 = plt.subplots(figsize=(4.8, 2.3))  # mindre bredde og høyde
+colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]  # grønn for aktuelt bygg
 bars = ax2.bar(cols, vals, color=colors, width=0.55)
 
 # Y-akse og utseende
-ax2.set_ylabel("kWh/m²", fontsize=11, color=PRIMARY)
+ax2.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
 ax2.set_ylim(0, max(vals) * 1.25)
 ax2.spines["top"].set_visible(False)
 ax2.spines["right"].set_visible(False)
@@ -160,15 +160,15 @@ for t in ax2.get_xticklabels():
 
 # Verdimerker over stolpene
 for b, v in zip(bars, vals):
-    ax2.text(b.get_x() + b.get_width()/2, v + 5, f"{v:.1f}",
-             ha="center", va="bottom", fontsize=9, color=PRIMARY)
+    ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
+             ha="center", va="bottom", fontsize=8, color=PRIMARY)
 
-# Tydeliggjør "AKTUELT BYGG"
-bars[-1].set_linewidth(2)
-bars[-1].set_edgecolor("#0D47A1")
+# Marker "AKTUELT BYGG" uten ramme
+bars[-1].set_linewidth(0)   # ← ingen kantlinje
+bars[-1].set_alpha(0.9)     # litt fyldigere farge
 
-# --- Viktig: faktisk vise figuren ---
-st.pyplot(fig2, use_container_width=True)
+# --- Vis figuren ---
+st.pyplot(fig2, use_container_width=False)
 
 
 # ----- HØYRE: kakediagram (prosent + kWh) -----

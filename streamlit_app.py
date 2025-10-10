@@ -15,12 +15,13 @@ st.markdown(
             <h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>
         </div>
         <div>
-            <img src='energipartner_logo.png' width='130' style='margin-left:15px;'>
+            <img src='EnergiPartner_RGB.png' width='130' style='margin-left:15px;'>
         </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

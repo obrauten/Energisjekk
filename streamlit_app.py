@@ -163,14 +163,14 @@ with left:
 with right:
     # Pie med egendefinerte farger og rekkefølge (med klokka)
     FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk (inkl. belysning)","El.spesifikk","Kjøling"]
-   FORMAL_COLORS = {
-    "Oppvarming":  "#33C831",
-    "Tappevann":   "#097E3E",
-    "Ventilasjon": "#74D680",
-    "Belysning":   "#FFC107",
-    "El.spesifikk":"#2E7BB4",
-    "El.spesifikk (inkl. belysning)": "#2E7BB4",  # samme farge
-    "Kjøling":     "#00ACC1",
+    FORMAL_COLORS = {
+        "Oppvarming":  "#33C831",
+        "Tappevann":   "#097E3E",
+        "Ventilasjon": "#74D680",
+        "Belysning":   "#FFC107",
+        "El.spesifikk":"#2E7BB4",
+        "El.spesifikk (inkl. belysning)": "#2E7BB4",  # samme farge
+        "Kjøling":     "#00ACC1",
 }
 
 

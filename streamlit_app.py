@@ -3,36 +3,75 @@ import io
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
+import base64, pathlib
 
-# --- Konfig / tittel ---
-st.set_page_config(page_title="Energisjekk", layout="wide")
-# --- Robust header: tittel + logo (høyre) + linje under ---
-hdr = st.container()
-with hdr:
-    left_hdr, right_hdr = st.columns([1, 0.22])
-    with left_hdr:
-        st.markdown(
-            "<h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>"
-            "<h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>",
-            unsafe_allow_html=True
-        )
-    with right_hdr:
-        # Litt ekstra padding for å hindre «kutt» i nederste pikselrad
-        st.markdown("<div style='padding-top:3px;padding-bottom:3px;'></div>", unsafe_allow_html=True)
-        st.image("EnergiPartner_RGB-300x140.png", width=140)
+# --- Les logo som base64 (robust for Streamlit Cloud) ---
+logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")
+logo_b64 = None
+if logo_path.exists():
+    logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
 
-# Tynn separator-linje under header
-st.markdown("<div style='border-bottom:1px solid #d9d9d9; margin: 4px 0 10px;'></div>", unsafe_allow_html=True)
-
-# (valgfritt) Responsiv logo – litt mindre på mobil
-st.markdown("""
+# --- CSS + HTML for header ---
+st.markdown(f"""
 <style>
-@media (max-width: 600px){
-  img[src*="EnergiPartner_RGB.png"]{ width: 96px !important; }
-}
-</style>
-""", unsafe_allow_html=True)
+/* Hovedcontainer */
+.ep-header {{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0 8px;
+  border-bottom: 1px solid #d9d9d9;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;  /* ingen linjebrekk */
+}}
 
+/* Tekst */
+.ep-headings h1 {{
+  color: #097E3E;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}}
+.ep-headings h4 {{
+  color: #097E3E;
+  margin: 2px 0 0 0;
+  line-height: 1.25;
+}}
+
+/* Logo */
+.ep-logo img {{
+  display: block;
+  height: auto;
+  max-width: 150px;   /* tilpass størrelse */
+  flex-shrink: 0;
+  margin-top: 2px;    /* hindrer kuttet p */
+}}
+
+/* Mobiltilpasning */
+@media (max-width: 600px) {{
+  .ep-logo img {{
+    max-width: 100px;
+  }}
+  .ep-headings h1 {{
+    font-size: 1.6rem;
+  }}
+  .ep-headings h4 {{
+    font-size: 1.0rem;
+  }}
+}}
+</style>
+
+<div class="ep-header">
+  <div class="ep-headings">
+    <h1>💡 Energisjekk</h1>
+    <h4>Rask vurdering av energibruk og energikarakter</h4>
+  </div>
+  <div class="ep-logo">
+    {"<img src='data:image/png;base64," + logo_b64 + "' alt='EnergiPartner logo'/>" if logo_b64 else ""}
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

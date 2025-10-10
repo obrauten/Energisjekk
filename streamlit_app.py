@@ -176,7 +176,13 @@ with right:
 
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
 
-    pct = SHARES[kategori]
+    pct = SHARES[kategori].copy()
+
+# For forretningsbygg: tydeliggjør at el.spesifikk inkluderer belysning i NVE-data
+if kategori == "Forretningsbygning" and pct.get("Belysning", 0) == 0:
+    # Gi ny etikett for visning (samme verdi)
+    if "El.spesifikk" in pct:
+        pct["El.spesifikk (inkl. belysning)"] = pct.pop("El.spesifikk")
     ordered_pct = {k: pct[k] for k in FORMAL_ORDER if k in pct}
     kwh = {k: arsforbruk * (v / 100) for k, v in ordered_pct.items()}
 

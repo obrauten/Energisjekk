@@ -134,7 +134,7 @@ with left:
     # Kompakt søyle under karakteren
     # --- Overskrift utenfor figuren (samme stil som de andre) ---
 st.markdown(
-    f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Gjennomsnittlig årlig energibruk pr. m² oppvarmet areal</h3>",
+    f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energibruk pr. m² (referanse vs. bygg)</h3>",
     unsafe_allow_html=True
 )
 

@@ -132,22 +132,44 @@ with left:
     )
     st.markdown("<div style='height:25px;'></div>", unsafe_allow_html=True)
     # Kompakt søyle under karakteren
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Gjennomsnittlig årlig energibruk pr. m² oppvarmet areal</h3>", unsafe_allow_html=True)
-    cols = REF["labels"] + ["AKTUELT BYGG"]
-    vals = REF[kategori] + [sp]
-    fig2, ax2 = plt.subplots(figsize=(5.2, 2.6))
-    colors = [BAR_LIGHT]*(len(vals)-1) + [BAR_DARK]
-    bars = ax2.bar(cols, vals, color=colors, width=0.55)
-    ax2.set_ylabel("kWh/m²", fontsize=11, color=PRIMARY)
-    ax2.set_ylim(0, max(vals)*1.25)
- 
-    for t in ax2.get_xticklabels():
-        t.set_rotation(20); t.set_ha("right")
-    # verdietiketter
-    for b, v in zip(bars, vals):
-        ax2.text(b.get_x()+b.get_width()/2, v+5, f"{v:.1f}", ha="center", va="bottom", fontsize=9, color=PRIMARY)
-    # understrek aktuelt bygg subtilt
-    bars[-1].set_linewidth(2)
+    # --- Overskrift utenfor figuren (samme stil som de andre) ---
+st.markdown(
+    f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Gjennomsnittlig årlig energibruk pr. m² oppvarmet areal</h3>",
+    unsafe_allow_html=True
+)
+
+# --- Data til søylediagram ---
+cols = REF["labels"] + ["AKTUELT BYGG"]
+vals = REF[kategori] + [sp]
+
+# --- Selve figuren ---
+fig2, ax2 = plt.subplots(figsize=(5.2, 2.6))  # ikke fjern denne
+colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]
+bars = ax2.bar(cols, vals, color=colors, width=0.55)
+
+# Y-akse og utseende
+ax2.set_ylabel("kWh/m²", fontsize=11, color=PRIMARY)
+ax2.set_ylim(0, max(vals) * 1.25)
+ax2.spines["top"].set_visible(False)
+ax2.spines["right"].set_visible(False)
+
+# X-etiketter
+for t in ax2.get_xticklabels():
+    t.set_rotation(20)
+    t.set_ha("right")
+
+# Verdimerker over stolpene
+for b, v in zip(bars, vals):
+    ax2.text(b.get_x() + b.get_width()/2, v + 5, f"{v:.1f}",
+             ha="center", va="bottom", fontsize=9, color=PRIMARY)
+
+# Tydeliggjør "AKTUELT BYGG"
+bars[-1].set_linewidth(2)
+bars[-1].set_edgecolor("#0D47A1")
+
+# --- Viktig: faktisk vise figuren ---
+st.pyplot(fig2, use_container_width=True)
+
 
 # ----- HØYRE: kakediagram (prosent + kWh) -----
 st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)

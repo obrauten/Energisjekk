@@ -1,6 +1,7 @@
 # streamlit_app.py
 import streamlit as st
 import matplotlib.pyplot as plt
+import pandas as pd
 
 st.set_page_config(page_title="Energisjekk", layout="wide")
 

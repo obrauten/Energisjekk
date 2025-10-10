@@ -214,6 +214,12 @@ with right:
     ax.axis("equal")
     st.pyplot(fig, use_container_width=True)
     
+# --- Typiske tiltak og potensial (Enova) ---
+st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Typiske tiltak og potensial (Enova)</h3>", unsafe_allow_html=True)
+st.table(pd.DataFrame(results))
+st.caption("Tallgrunnlag: Enova ET 2019-10, ER 2020-23, NVE 2016-24. Intervaller viser typisk energibesparelse i eksisterende næringsbygg.")
+
+    
 # --- Typiske tiltak og besparelse basert på Enova/NVE ---
 MEASURE_DATA = {
     "Varmepumpe / varmegjenvinning": {
@@ -248,10 +254,6 @@ for tiltak, data in MEASURE_DATA.items():
         "Potensial (kWh/år)": f"{fmt_int(spare_lav)} – {fmt_int(spare_høy)}"
     })
 
-# vis resultatet i tabell
-st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Typiske tiltak og potensial (Enova)</h3>", unsafe_allow_html=True)
-st.table(pd.DataFrame(results))
-st.caption("Tallgrunnlag: Enova ET 2019-10, ER 2020-23, NVE 2016-24. Intervaller viser typisk energibesparelse i eksisterende næringsbygg.")
 
 
 # (Ingen tabell nederst. Ingen ekstra tekst.)

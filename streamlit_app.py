@@ -161,13 +161,12 @@ with left:
 
 # ========== HØYRE ==========
 with right:
-    # Tittel
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
 
-    # Farger og rekkefølge (med klokka)
     FORMAL_ORDER = [
         "Oppvarming", "Tappevann", "Ventilasjon",
-        "Belysning", "El.spesifikk (inkl. belysning)", "El.spesifikk", "Kjøling"
+        "Belysning", "El.spesifikk (inkl. lys/vifter/kjølemaskiner)", "El.spesifikk",
+        "Kjøling", "Kjøling (fjernkjøling)"
     ]
     FORMAL_COLORS = {
         "Oppvarming":  "#33C831",
@@ -175,39 +174,47 @@ with right:
         "Ventilasjon": "#74D680",
         "Belysning":   "#FFC107",
         "El.spesifikk": "#2E7BB4",
-        "El.spesifikk (inkl. belysning)": "#2E7BB4",  # samme farge
+        # bruk samme blå for presiserte varianter:
+        "El.spesifikk (inkl. lys/vifter/kjølemaskiner)": "#2E7BB4",
         "Kjøling":     "#00ACC1",
+        "Kjøling (fjernkjøling)": "#00ACC1",
     }
 
-    # Kopi av formålsandel for valgt kategori
+    # Start med en kopi
     pct = SHARES[kategori].copy()
 
-    # Forretningsbygg: NVE slår lys inn i el.spesifikk -> vis mer presis etikett
+    # Forretningsbygg: el.spesifikk inkluderer lys i NVE – presiser etikett (som før)
     if kategori == "Forretningsbygning" and pct.get("Belysning", 0) == 0 and "El.spesifikk" in pct:
         pct["El.spesifikk (inkl. belysning)"] = pct.pop("El.spesifikk")
 
-    # Sortér og filtrér bort 0-verdier
+    # Sykehus: presiser at el.spesifikk inkluderer lys/vifter/kjølemaskiner,
+    # og at "Kjøling" er fjernkjøling
+    if kategori == "Sykehus":
+        if "El.spesifikk" in pct:
+            pct["El.spesifikk (inkl. lys/vifter/kjølemaskiner)"] = pct.pop("El.spesifikk")
+        if "Kjøling" in pct:
+            pct["Kjøling (fjernkjøling)"] = pct.pop("Kjøling")
+
+    # Sortér og filtrér vekk 0-verdier
     ordered_pct = {k: pct[k] for k in FORMAL_ORDER if k in pct and pct[k] > 0}
 
-    # Hvis alt er 0 (skal ikke skje), vis melding
     if not ordered_pct:
         st.info("Ingen formålsdata tilgjengelig for valgt kategori.")
     else:
-        # kWh-verdier og etiketter
         values = [arsforbruk * (v / 100) for v in ordered_pct.values()]
         labels = [f"{k}\n{fmt_int(val)} kWh" for k, val in zip(ordered_pct.keys(), values)]
         colors = [FORMAL_COLORS.get(k, "#999999") for k in ordered_pct.keys()]
 
-        # Tegn kakediagram
         fig, ax = plt.subplots(figsize=(5.0, 4.4))
         ax.pie(
             values,
             labels=labels,
             colors=colors,
             autopct=lambda p: f"{p:.1f}%",
-            startangle=90,          # start kl. 12
-            counterclock=False      # med klokka
+            startangle=90,
+            counterclock=False
         )
         ax.axis("equal")
         st.pyplot(fig, use_container_width=True)
+
 

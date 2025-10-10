@@ -6,16 +6,32 @@ import pandas as pd
 
 # --- Konfig / tittel ---
 st.set_page_config(page_title="Energisjekk", layout="wide")
-# --- Tittel + logo øverst (høyre) ---
-left_hdr, right_hdr = st.columns([1, 0.22])
-with left_hdr:
-    st.markdown(
-        "<h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>"
-        "<h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>",
-        unsafe_allow_html=True
-    )
-with right_hdr:
-    st.image("EnergiPartner_RGB.png", width=130)
+# --- HEADER med tittel, logo og linje under ---
+st.markdown("""
+<style>
+.ep-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #d9d9d9;  /* Grå linje under header */
+    margin-bottom: 10px;
+}
+@media (max-width: 600px){
+  img[src*="EnergiPartner_RGB.png"]{ width: 96px !important; }
+}
+</style>
+
+<div class="ep-header">
+  <div>
+    <h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>
+    <h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>
+  </div>
+  <div style='padding-top:3px;padding-bottom:3px;'>
+    <img src='EnergiPartner_RGB.png' width='130'>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

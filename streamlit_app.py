@@ -6,32 +6,33 @@ import pandas as pd
 
 # --- Konfig / tittel ---
 st.set_page_config(page_title="Energisjekk", layout="wide")
-# --- HEADER med tittel, logo og linje under ---
+# --- Robust header: tittel + logo (høyre) + linje under ---
+hdr = st.container()
+with hdr:
+    left_hdr, right_hdr = st.columns([1, 0.22])
+    with left_hdr:
+        st.markdown(
+            "<h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>"
+            "<h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>",
+            unsafe_allow_html=True
+        )
+    with right_hdr:
+        # Litt ekstra padding for å hindre «kutt» i nederste pikselrad
+        st.markdown("<div style='padding-top:3px;padding-bottom:3px;'></div>", unsafe_allow_html=True)
+        st.image("EnergiPartner_RGB.png", width=130)
+
+# Tynn separator-linje under header
+st.markdown("<div style='border-bottom:1px solid #d9d9d9; margin: 4px 0 10px;'></div>", unsafe_allow_html=True)
+
+# (valgfritt) Responsiv logo – litt mindre på mobil
 st.markdown("""
 <style>
-.ep-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #d9d9d9;  /* Grå linje under header */
-    margin-bottom: 10px;
-}
 @media (max-width: 600px){
   img[src*="EnergiPartner_RGB.png"]{ width: 96px !important; }
 }
 </style>
-
-<div class="ep-header">
-  <div>
-    <h1 style='color:#097E3E;font-weight:700;margin-bottom:0;'>💡 Energisjekk</h1>
-    <h4 style='color:#097E3E;margin-top:-6px;'>Rask vurdering av energibruk og energikarakter</h4>
-  </div>
-  <div style='padding-top:3px;padding-bottom:3px;'>
-    <img src='EnergiPartner_RGB.png' width='130'>
-  </div>
-</div>
 """, unsafe_allow_html=True)
+
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

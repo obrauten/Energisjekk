@@ -19,7 +19,7 @@ with hdr:
     with right_hdr:
         # Litt ekstra padding for å hindre «kutt» i nederste pikselrad
         st.markdown("<div style='padding-top:3px;padding-bottom:3px;'></div>", unsafe_allow_html=True)
-        st.image("EnergiPartner_RGB.png", width=130)
+        st.image("EnergiPartner_RGB-300x140.png", width=140)
 
 # Tynn separator-linje under header
 st.markdown("<div style='border-bottom:1px solid #d9d9d9; margin: 4px 0 10px;'></div>", unsafe_allow_html=True)

@@ -147,7 +147,6 @@ with left:
         ax2.text(b.get_x()+b.get_width()/2, v+5, f"{v:.1f}", ha="center", va="bottom", fontsize=9, color=PRIMARY)
     # understrek aktuelt bygg subtilt
     bars[-1].set_linewidth(2)
-    bars[-1].set_edgecolor("#0D47A1")
     ax2.spines["top"].set_visible(False); ax2.spines["right"].set_visible(False)
     st.pyplot(fig2, use_container_width=True)
 

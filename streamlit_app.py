@@ -155,19 +155,40 @@ with left:
 # ----- HØYRE: kakediagram (prosent + kWh) -----
 st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
 with right:
-    shares = SHARES[kategori]
-    kwh_map = {k: arsforbruk*(p/100) for k, p in shares.items()}
-    labels = [f"{name}\n{fmt_int(val)} kWh" for name, val in kwh_map.items()]
+    # --- Farger og rekkefølge for sektorer ---
+    FORMAL_ORDER = ["Oppvarming", "Tappevann", "Ventilasjon", "Belysning", "El.spesifikk", "Kjøling"]
+    FORMAL_COLORS = {
+        "Oppvarming":  "#33C831",  # lys grønn
+        "Tappevann":   "#097E3E",  # mørk grønn
+        "Ventilasjon": "#74D680",  # mellomgrønn
+        "Belysning":   "#FFC107",  # gul
+        "El.spesifikk":"#2E7BB4",  # blå
+        "Kjøling":     "#00ACC1",  # turkis
+    }
 
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-top:4px'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
+
+    # Hent data og sorter i ønsket rekkefølge (med klokka)
+    pct = SHARES[kategori]
+    ordered_pct = {k: pct[k] for k in FORMAL_ORDER if k in pct}
+    kwh = {k: arsforbruk * (v / 100) for k, v in ordered_pct.items()}
+
+    # Lag etiketter med både kWh og prosent
+    labels = [f"{navn}\n{fmt_int(verdi)} kWh" for navn, verdi in kwh.items()]
+    colors = [FORMAL_COLORS[n] for n in kwh.keys()]
+
+    # Tegn kakediagram
     fig, ax = plt.subplots(figsize=(5.8, 5.2))
     ax.pie(
-        list(kwh_map.values()),
+        list(kwh.values()),
         labels=labels,
+        colors=colors,
         autopct=lambda p: f"{p:.1f}%",
-        startangle=90
+        startangle=90,      # start kl. 12
+        counterclock=False  # MED klokka
     )
     ax.axis("equal")
     st.pyplot(fig, use_container_width=True)
+
 
 # (Ingen tabell nederst. Ingen ekstra tekst.)

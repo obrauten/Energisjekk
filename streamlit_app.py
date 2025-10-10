@@ -21,8 +21,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-st.markdown("<h1 style='color:#097E3E;font-weight:700;'>💡 Energisjekk</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='color:#097E3E;margin-top:-10px;'>Rask vurdering av energibruk og energikarakter</h4>", unsafe_allow_html=True)
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

@@ -3,7 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Energisjekk", layout="wide")
-
+st.markdown("<h1 style='color:#097E3E;font-weight:700;'>💡 Energisjekk</h1>", unsafe_allow_html=True)
 # ---------- OVERSKRIFT ----------
 st.title("💡 Energisjekk")
 st.markdown(
@@ -115,10 +115,11 @@ with left:
 
     st.markdown(f"<div style='margin:6px 0 10px 0;color:{PRIMARY}'>Kalkulert energikarakter (faktisk levert energi):</div>", unsafe_allow_html=True)
     st.markdown(
-        f"<div style='display:inline-block;padding:.45rem .9rem;border-radius:.6rem;background:{badge_color};color:white;font-weight:800;font-size:22px'>"
-        f"{label}</div>",
-        unsafe_allow_html=True
-    )
+    f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
+    f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"
+    f"{label}</div>",
+    unsafe_allow_html=True
+)
 
     # Kompakt søyle under karakteren
     cols = REF["labels"] + ["AKTUELT BYGG"]

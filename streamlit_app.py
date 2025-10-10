@@ -172,7 +172,7 @@ import io
 buf = io.BytesIO()
 fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
 buf.seek(0)
-st.image(buf, width=420)   # << justér 380–460 for å matche kakediagrammet
+st.image(buf, width=460)   # << justér 380–460 for å matche kakediagrammet
 
 
 # ----- HØYRE: kakediagram (prosent + kWh) -----

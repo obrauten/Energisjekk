@@ -116,19 +116,20 @@ left, right = st.columns([1.05, 1])
 
 # ----- VENSTRE: nøkkeltall + energikarakter + kompakt søyle -----
 with left:
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0'>Årsforbruk</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0;'>Årsforbruk</h3>", unsafe_allow_html=True)
     st.markdown(f"<div style='font-size:38px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
 
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0'>Spesifikt årsforbruk</h3>", unsafe_allow_html=True)
-    st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/ m² BRA</div>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0;'>Spesifikt årsforbruk</h3>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>", unsafe_allow_html=True)
 
-    st.markdown(f"<div style='margin:6px 0 10px 0;color:{PRIMARY}'>Kalkulert energikarakter (faktisk levert energi):</div>", unsafe_allow_html=True)
+    # Endret fra <div> til <h3> for likt utseende
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Kalkulert energikarakter (faktisk levert energi):</h3>", unsafe_allow_html=True)
     st.markdown(
-    f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
-    f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"
-    f"{label}</div>",
-    unsafe_allow_html=True
-)
+        f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
+        f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"
+        f"{label}</div>",
+        unsafe_allow_html=True
+    )
 
     # Kompakt søyle under karakteren
     cols = REF["labels"] + ["AKTUELT BYGG"]

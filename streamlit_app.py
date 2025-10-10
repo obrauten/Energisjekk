@@ -167,8 +167,12 @@ for b, v in zip(bars, vals):
 bars[-1].set_linewidth(0)   # ← ingen kantlinje
 bars[-1].set_alpha(0.9)     # litt fyldigere farge
 
-# --- Vis figuren ---
-st.pyplot(fig2, use_container_width=False)
+# --- Vis figuren i fast bredde (ikke auto-skaler) ---
+import io
+buf = io.BytesIO()
+fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
+buf.seek(0)
+st.image(buf, width=420)   # << justér 380–460 for å matche kakediagrammet
 
 
 # ----- HØYRE: kakediagram (prosent + kWh) -----

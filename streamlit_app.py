@@ -195,44 +195,45 @@ with left:
 
 
 # ---------- HØYRE: formålsfordelt forbruk ----------
-title("Energiforbruk formålsfordelt*")
+with right:
+    title("Energiforbruk formålsfordelt*")
 
-# Hent og korriger formålsdeling
-pct = SHARES[kategori].copy()
+    # Hent og korriger formålsdeling
+    pct = SHARES[kategori].copy()
 
-# Korreksjoner for spesielle byggtyper
-note_text = None
-if kategori == "Forretningsbygning":
+    # Korreksjoner for spesielle byggtyper
+    note_text = None
+    if kategori == "Forretningsbygning":
     pct["El.spesifikk"] += pct.get("Belysning", 0)
     pct["Belysning"] = 0
     note_text = "For **Forretningsbygning** er *belysning* inkludert i **El.spesifikk** (ref. NVE 2016:24)."
-elif kategori == "Sykehus":
+    elif kategori == "Sykehus":
     pct["El.spesifikk"] += pct.get("Ventilasjon", 0) + pct.get("Belysning", 0)
     pct["Ventilasjon"] = 0
     pct["Belysning"] = 0
     note_text = "For **Sykehus** er *ventilasjon* og *belysning* inkludert i **El.spesifikk** (ref. NVE 2016:24)."
 
-# Rekke­følge og farger
-FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk","Kjøling"]
-FORMAL_COLORS = {
-    "Oppvarming":  "#33C831",
-    "Tappevann":   "#097E3E",
-    "Ventilasjon": "#74D680",
-    "Belysning":   "#FFC107",
-    "El.spesifikk":"#2E7BB4",
-    "Kjøling":     "#00ACC1",
+    # Rekke­følge og farger
+    FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk","Kjøling"]
+    FORMAL_COLORS = {
+        "Oppvarming":  "#33C831",
+        "Tappevann":   "#097E3E",
+        "Ventilasjon": "#74D680",
+        "Belysning":   "#FFC107",
+        "El.spesifikk":"#2E7BB4",
+        "Kjøling":     "#00ACC1",
 }
 
-# Visningsnavn (slik at etiketten i figuren blir tydelig)
-display_name = {
-    "Oppvarming": "Oppvarming",
-    "Tappevann": "Tappevann",
-    "Ventilasjon": "Ventilasjon",
-    "Belysning": "Belysning",
-    "El.spesifikk": (
-        "El.spesifikk (inkl. belysning)" if kategori == "Forretningsbygning"
-        else ("El.spesifikk (inkl. ventilasjon og belysning)" if kategori == "Sykehus"
-              else "El.spesifikk")
+    # Visningsnavn (slik at etiketten i figuren blir tydelig)
+    display_name = {
+        "Oppvarming": "Oppvarming",
+        "Tappevann": "Tappevann",
+        "Ventilasjon": "Ventilasjon",
+        "Belysning": "Belysning",
+        "El.spesifikk": (
+            "El.spesifikk (inkl. belysning)" if kategori == "Forretningsbygning"
+            else ("El.spesifikk (inkl. ventilasjon og belysning)" if kategori == "Sykehus"
+                  else "El.spesifikk")
     ),
     "Kjøling": "Kjøling",
 }

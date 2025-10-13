@@ -118,21 +118,6 @@ with c3:
 
 sp = arsforbruk / areal
 
-# --- Formålsfordeling ---
-pct = SHARES[kategori].copy()
-
-# --- Korreksjoner for spesielle byggtyper ---
-# Forretningsbygg: Belysning inkludert i el.spesifikk
-if kategori == "Forretningsbygning":
-    pct["El.spesifikk"] += pct["Belysning"]
-    pct["Belysning"] = 0
-
-# Sykehus: Ventilasjon og belysning inkludert i el.spesifikk
-if kategori == "Sykehus":
-    pct["El.spesifikk"] += pct["Ventilasjon"] + pct["Belysning"]
-    pct["Ventilasjon"] = 0
-    pct["Belysning"] = 0
-
 # ---------- FORMÅLSFORDELING ----------
 SHARES = {
     "Barnehage":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":14,"Belysning":9,"El.spesifikk":13,"Kjøling":0},
@@ -148,7 +133,20 @@ SHARES = {
     "Lett industribygning, verksted":{"Oppvarming":63,"Tappevann":2,"Ventilasjon":5,"Belysning":13,"El.spesifikk":15,"Kjøling":2},
     "Kombinasjon":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":10,"Belysning":15,"El.spesifikk":9,"Kjøling":0},
 }
+# --- Formålsfordeling ---
+pct = SHARES[kategori].copy()
 
+# --- Korreksjoner for spesielle byggtyper ---
+# Forretningsbygg: Belysning inkludert i el.spesifikk
+if kategori == "Forretningsbygning":
+    pct["El.spesifikk"] += pct["Belysning"]
+    pct["Belysning"] = 0
+
+# Sykehus: Ventilasjon og belysning inkludert i el.spesifikk
+if kategori == "Sykehus":
+    pct["El.spesifikk"] += pct["Ventilasjon"] + pct["Belysning"]
+    pct["Ventilasjon"] = 0
+    pct["Belysning"] = 0
 
 # ---------- REFERANSER TIL SØYLE ----------
 REF = {

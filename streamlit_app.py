@@ -289,3 +289,45 @@ with st.expander("Kilder og forutsetninger", expanded=False):
     - **Referanseverdier pr m² / tiltak:** Enova (veiledere og kunnskapsartikler)  
     - **Energikarakter:** Enova – Karakterskalaen  
     """)
+
+# --- Typiske tiltak og besparelsesintervaller (kilde: Enova, NVE) ---
+MEASURE_DATA = {
+    "Oppvarming og tappevann": {
+        "keys": ["Oppvarming", "Tappevann"],
+        "reduction_pct": (10, 50),  # Varmepumpe / varmegjenvinning
+        "label": "Varmepumpe / varmegjenvinning",
+    },
+    "Ventilasjon": {
+        "keys": ["Ventilasjon"],
+        "reduction_pct": (10, 30),  # VAV, behovsstyring, lav SFP
+        "label": "Behovsstyrt ventilasjon (VAV)",
+    },
+    "Belysning": {
+        "keys": ["Belysning"],
+        "reduction_pct": (40, 60),  # LED + styring
+        "label": "LED-belysning og styring",
+    },
+}
+
+# --- Beregn sparepotensial per tiltak ---
+results = []
+for name, data in MEASURE_DATA.items():
+    total_pct = sum(pct.get(k, 0) for k in data["keys"])
+    kwh_total = arsforbruk * total_pct / 100
+    lav, hoy = data["reduction_pct"]
+    spare_lav = kwh_total * lav / 100
+    spare_hoy = kwh_total * hoy / 100
+
+    if total_pct > 0:
+        results.append({
+            "Tiltak": data["label"],
+            "Andel av bygg": f"{total_pct:.1f} %",
+            "Typisk besparelse": f"{lav}–{hoy} %",
+            "Sparepotensial (kWh/år)": f"{fmt_int(spare_lav)} – {fmt_int(spare_hoy)}",
+        })
+
+# --- Vis i tabellform ---
+if results:
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Estimert energisparepotensial (Enova)</h3>", unsafe_allow_html=True)
+    st.table(pd.DataFrame(results))
+

@@ -56,6 +56,28 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# --- Tilpass farger på sliders (EnergiPartner-grønn) ---
+st.markdown("""
+<style>
+div[data-baseweb="slider"] > div > div {
+    background-color: #33C831 !important;
+}
+div[data-baseweb="slider"] > div > div > div {
+    background-color: #097E3E !important;
+}
+div[data-baseweb="slider"] div[role="slider"] {
+    background-color: #33C831 !important;
+    border: 2px solid #097E3E !important;
+}
+div[data-baseweb="slider"] div[role="slider"]:hover {
+    background-color: #27b52a !important;
+}
+div[data-baseweb="slider"] > div {
+    background-color: #cceccc !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn
 SECONDARY = "#33C831"   # lys grønn

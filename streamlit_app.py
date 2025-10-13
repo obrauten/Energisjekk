@@ -1,44 +1,32 @@
 # streamlit_app.py
 import io
+import base64
+import pathlib
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
-import base64, pathlib
 
-# Fjern automatiske lenke-ikoner på overskrifter
-st.markdown("""
-<style>
-/* Skjul anker-ikonene som Streamlit legger til automatisk på h1–h6 */
-h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
-    text-decoration: none !important;
-    color: inherit !important;
-    pointer-events: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-# --- Les logo som base64 (trygt for Streamlit Cloud) ---
+# ---------- LAST LOGO ----------
 logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")
 logo_b64 = None
 if logo_path.exists():
     logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
 
-# --- CSS + HTML for logo over tittel ---
+# ---------- LOGO OG TOPP ----------
 st.markdown(f"""
 <style>
 .ep-header {{
   display: flex;
-  flex-direction: column;          /* logo over teksten */
-  align-items: flex-start;         /* venstrejustert */
+  flex-direction: column;
+  align-items: flex-start;
   padding-bottom: 10px;
-  border-bottom: 2px solid #097E3E; /* grønn linje under */
+  border-bottom: 2px solid #097E3E;
   margin-bottom: 10px;
 }}
 .ep-logo img {{
   display: block;
-  max-width: 180px;                /* juster størrelse her */
-  margin-bottom: 4px;              /* litt luft mellom logo og tittel */
+  max-width: 180px;
+  margin-bottom: 4px;
 }}
 .ep-headings h1 {{
   color: #097E3E;
@@ -69,17 +57,19 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Farger / profil ---
-PRIMARY   = "#097E3E"   # mørk grønn
-SECONDARY = "#33C831"   # lys grønn
-BAR_LIGHT = "#A8E6A1"   # historikkstolper
-BAR_DARK  = PRIMARY     # "AKTUELT BYGG"
+
+# ---------- FARGER ----------
+PRIMARY   = "#097E3E"
+SECONDARY = "#33C831"
+BAR_LIGHT = "#A8E6A1"
+BAR_DARK  = PRIMARY
 BADGE_COLORS = {
     "A": "#2E7D32", "B": "#4CAF50", "C": "#9CCC65",
     "D": "#FFEB3B", "E": "#FFC107", "F": "#FF9800", "G": "#F44336"
 }
 
-# --- Hjelpere ---
+
+# ---------- HJELPERE ----------
 def fmt_int(x: float) -> str:
     return f"{x:,.0f}".replace(",", " ")
 
@@ -95,7 +85,15 @@ def parse_int_with_spaces(text: str, default=0):
     except ValueError:
         return default
 
-# ---------------- Inputs ----------------
+# Felles tittel-stil uten klikkbare lenker
+def title(text: str):
+    st.markdown(
+        f"<div style='color:{PRIMARY}; font-size:20px; font-weight:700; margin-bottom:6px;'>{text}</div>",
+        unsafe_allow_html=True
+    )
+
+
+# ---------- INPUT ----------
 CATEGORIES = [
     "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
     "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
@@ -112,7 +110,7 @@ with c2:
         "Årsforbruk (kWh)",
         min_value=0,
         value=500_000,
-        step=1_000,      # ±1000
+        step=1_000,
         format="%i",
     )
 
@@ -121,14 +119,14 @@ with c3:
         "Oppvarmet areal (m² BRA)",
         min_value=1,
         value=3_000,
-        step=100,        # ±100
+        step=100,
         format="%i",
     )
 
 sp = arsforbruk / areal
 
 
-# --- Formålsdeling (prosent) ---
+# ---------- FORMÅLSFORDELING ----------
 SHARES = {
     "Barnehage":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":14,"Belysning":9,"El.spesifikk":13,"Kjøling":0},
     "Kontorbygning":{"Oppvarming":31,"Tappevann":5,"Ventilasjon":10,"Belysning":16,"El.spesifikk":31,"Kjøling":7},
@@ -144,7 +142,8 @@ SHARES = {
     "Kombinasjon":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":10,"Belysning":15,"El.spesifikk":9,"Kjøling":0},
 }
 
-# --- Enova-referanser (kWh/m²·år) til søylediagram ---
+
+# ---------- REFERANSER TIL SØYLE ----------
 REF = {
     "labels":["1950 og eldre","1951–1970","1971–1988","1989–1998","1999–2008","2009–2020"],
     "Barnehage":[407.1,374.5,263.4,231.6,190.0,157.5],
@@ -161,7 +160,8 @@ REF = {
     "Kombinasjon":[350.8,324.0,264.7,230.2,199.2,171.5],
 }
 
-# --- Energikarakter terskler (kWh/m²·år) ---
+
+# ---------- ENERGIKARAKTER ----------
 THRESH = {
     "Barnehage":dict(A=85,B=115,C=145,D=180,E=220,F=275),
     "Kontorbygning":dict(A=90,B=115,C=145,D=180,E=220,F=275),
@@ -180,22 +180,20 @@ THRESH = {
 label = energy_label(sp, THRESH.get(kategori, THRESH["Kombinasjon"]))
 badge_color = BADGE_COLORS[label]
 
-# --- Layout ---
+
+# ---------- LAYOUT ----------
 left, right = st.columns([1, 1.5])
 
-# VENSTRE SIDE
 with left:
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0;'>Årsforbruk</h3>", unsafe_allow_html=True)
+    title("Årsforbruk")
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-    st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)  # mellomrom
-
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:0;'>Spesifikt årsforbruk</h3>", unsafe_allow_html=True)
+    title("Spesifikt årsforbruk")
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-    st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)  # mellomrom
-
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Kalkulert energikarakter*</h3>", unsafe_allow_html=True)
+    title("Kalkulert energikarakter*")
     st.markdown(
         f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
         f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"
@@ -204,16 +202,12 @@ with left:
     )
 
 
-# ========== HØYRE ==========
+# ---------- HØYRE SIDE ----------
 with right:
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
-
-    # klargjør data (din logikk som før)
+    title("Energiforbruk formålsfordelt")
     pct = SHARES[kategori].copy()
-    # ev. spesialhåndtering for forretningsbygg/sykehus her ...
 
-    FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning",
-                    "El.spesifikk (inkl. belysning)","El.spesifikk","Kjøling"]
+    FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk (inkl. belysning)","El.spesifikk","Kjøling"]
     FORMAL_COLORS = {
         "Oppvarming":  "#33C831",
         "Tappevann":   "#097E3E",
@@ -229,22 +223,17 @@ with right:
     labels = [f"{k}\n{fmt_int(val)} kWh" for k, val in zip(ordered_pct.keys(), values)]
     colors = [FORMAL_COLORS.get(k, "#999999") for k in ordered_pct.keys()]
 
-    # tegn pie med kontrollert størrelse
-    fig, ax = plt.subplots(figsize=(5.2, 4.8))  # ikke for bred/høy
+    fig, ax = plt.subplots(figsize=(5.2, 4.8))
     ax.pie(values, labels=labels, colors=colors,
            autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
     ax.axis("equal")
 
-    # vis som bilde i fast bredde → holder seg i kolonnen
-    import io
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
     buf.seek(0)
-    st.image(buf, width=580)   # juster 420–460 for å matche venstre figur
+    st.image(buf, width=580)
 
-# Overskrift + søylediagram (kompakt)
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Energibruk pr. m² (referanse vs. bygg)</h3>", unsafe_allow_html=True)
-
+    title("Energibruk pr. m² (referanse vs. bygg)")
     cols = REF["labels"] + ["AKTUELT BYGG"]
     vals = REF[kategori] + [sp]
 
@@ -265,16 +254,15 @@ with right:
         ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
                  ha="center", va="bottom", fontsize=8, color=PRIMARY)
 
-    # Uten kantlinje rundt "AKTUELT BYGG"
     bars[-1].set_linewidth(0)
     bars[-1].set_alpha(0.95)
 
-    # Vises i fast bredde slik at den ikke blåses opp
     buf = io.BytesIO()
     fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
     buf.seek(0)
-    st.image(buf, width=480)  # juster 380–460 ved behov
+    st.image(buf, width=480)
 
+# ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):
     st.markdown("""
     - **Formålsdeling:** NVE Rapport 2016:24  

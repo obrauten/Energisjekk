@@ -262,7 +262,12 @@ with right:
             counterclock=False
         )
         ax.axis("equal")
-        st.pyplot(fig, use_container_width=True)
+        import io
+buf = io.BytesIO()
+fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
+buf.seek(0)
+st.image(buf, width=460)  # ← juster mellom 420–480 for ønsket størrelse
+
 
 with st.expander("Kilder og forutsetninger", expanded=False):
     st.markdown("""

@@ -38,6 +38,13 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+span[data-testid="stNumberInputInstructions"] { display: none !important; }
+</style>
+""", unsafe_allow_html=True)
+
+
 # ---------- FARGER ----------
 PRIMARY   = "#097E3E"
 SECONDARY = "#33C831"

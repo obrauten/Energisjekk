@@ -196,12 +196,12 @@ with left:
 
 # ---------- HØYRE: formålsfordelt forbruk ----------
 with right:
+    # ---------- PIE: formålsfordelt forbruk ----------
     title("Energiforbruk formålsfordelt*")
 
-    # Hent og korriger formålsdeling
     pct = SHARES[kategori].copy()
 
-    # Korreksjoner for spesielle byggtyper
+    # Korreksjoner (NVE 2016:24)
     note_text = None
     if kategori == "Forretningsbygning":
         pct["El.spesifikk"] += pct.get("Belysning", 0)
@@ -219,7 +219,6 @@ with right:
         "Belysning":"#FFC107","El.spesifikk":"#2E7BB4","Kjøling":"#00ACC1"
     }
 
-    # Visningsnavn (etiketter)
     def disp(name: str) -> str:
         if name == "El.spesifikk" and kategori == "Forretningsbygning":
             return "El.spesifikk (inkl. belysning)"
@@ -227,18 +226,18 @@ with right:
             return "El.spesifikk (inkl. ventilasjon og belysning)"
         return name
 
-    ordered = [(k, pct[k]) for k in FORMAL_ORDER if k in pct and pct[k] > 0]
-    values  = [arsforbruk * (v/100) for _, v in ordered]
-    labels  = [f"{disp(k)}\n{fmt_int(val)} kWh" for k, val in zip([k for k,_ in ordered], values)]
-    colors  = [FORMAL_COLORS[k] for k,_ in ordered]
+    ordered      = [(k, pct[k]) for k in FORMAL_ORDER if k in pct and pct[k] > 0]
+    pie_values   = [arsforbruk * (v/100) for _, v in ordered]
+    pie_labels   = [f"{disp(k)}\n{fmt_int(val)} kWh" for k, val in zip([k for k,_ in ordered], pie_values)]
+    pie_colors   = [FORMAL_COLORS[k] for k,_ in ordered]
 
-    fig, ax = plt.subplots(figsize=(5.2, 4.8))
-    ax.pie(values, labels=labels, colors=colors,
-           autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
-    ax.axis("equal")
+    fig_pie, ax_pie = plt.subplots(figsize=(5.2, 4.8))
+    ax_pie.pie(pie_values, labels=pie_labels, colors=pie_colors,
+               autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
+    ax_pie.axis("equal")
 
     buf_pie = io.BytesIO()
-    fig.savefig(buf_pie, format="png", bbox_inches="tight", dpi=160)
+    fig_pie.savefig(buf_pie, format="png", bbox_inches="tight", dpi=160)
     buf_pie.seek(0)
     st.image(buf_pie, width=580)
 
@@ -247,9 +246,40 @@ with right:
         unsafe_allow_html=True
     )
 
-    # (Hvis søylediagrammet skal ligge under pie, legg det VIDERE her inne)
-    # title("Energibruk pr. m² (referanse vs. bygg)")
-    # ...
+    # Litt luft mellom figurene
+    st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
+
+    # ---------- BAR: referanse vs. bygg ----------
+    title("Energibruk pr. m² (referanse vs. bygg)")
+
+    cols = REF["labels"] + ["AKTUELT BYGG"]
+    vals = REF[kategori] + [sp]
+
+    fig_bar, ax_bar = plt.subplots(figsize=(4.6, 2.3))
+    bar_colors = [BAR_LIGHT] * (len(vals)-1) + [BAR_DARK]
+    bars = ax_bar.bar(cols, vals, color=bar_colors, width=0.55)
+
+    ax_bar.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
+    ax_bar.set_ylim(0, max(vals)*1.25)
+    ax_bar.spines["top"].set_visible(False)
+    ax_bar.spines["right"].set_visible(False)
+
+    for t in ax_bar.get_xticklabels():
+        t.set_rotation(20)
+        t.set_ha("right")
+
+    for b, v in zip(bars, vals):
+        ax_bar.text(b.get_x()+b.get_width()/2, v+3, f"{v:.1f}",
+                    ha="center", va="bottom", fontsize=8, color=PRIMARY)
+
+    # Fremhev "AKTUELT BYGG" uten kantlinje
+    bars[-1].set_linewidth(0)
+    bars[-1].set_alpha(0.95)
+
+    buf_bar = io.BytesIO()
+    fig_bar.savefig(buf_bar, format="png", bbox_inches="tight", dpi=200)
+    buf_bar.seek(0)
+    st.image(buf_bar, width=480)
 
 
 # ---------- KILDER ----------

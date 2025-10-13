@@ -281,10 +281,9 @@ with right:
     buf_bar.seek(0)
     st.image(buf_bar, width=480)
 
-
-# === FULL BREDD: Estimert energisparepotensial (Enova) =======================
+# === FULL BREDDE: Estimert energisparepotensial ==============================
 st.markdown(
-    f"<h3 style='color:{PRIMARY};margin:10px 0 6px 0;'>Estimert energisparepotensial</h3>",
+    f"<div style='color:{PRIMARY}; font-size:18px; font-weight:600; margin:6px 0 10px 0;'>Estimert energisparepotensial</div>",
     unsafe_allow_html=True
 )
 
@@ -319,6 +318,7 @@ MEASURE_DATA = {
     },
 }
 
+# ---------------- Beregn rader ----------------
 rows = []
 for data in MEASURE_DATA.values():
     share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
@@ -334,93 +334,91 @@ for data in MEASURE_DATA.values():
     })
 
 if rows:
-    # To kolonner i full bredde
-    g_left, g_right = st.columns([2.2, 1])
+    names  = [r["label"] for r in rows]
+    lows   = [r["kwh_lo"] for r in rows]
+    highs  = [r["kwh_hi"] for r in rows]
+    mids   = [(lo + hi) / 2 for lo, hi in zip(lows, highs)]
+    shares = [r["share_pct"] for r in rows]
 
-    # ---------------- Venstre: range chart ----------------
-    with g_left:
-        names  = [r["label"] for r in rows]
-        lows   = [r["kwh_lo"] for r in rows]
-        highs  = [r["kwh_hi"] for r in rows]
-        mids   = [(lo + hi) / 2 for lo, hi in zip(lows, highs)]
-        shares = [r["share_pct"] for r in rows]
+    # ================== ØVERST: RANGE-CHART I FULL BREDDE ==================
+    # Stor, lettlest skrift og venstrejusterte etiketter
+    fig_h = 1.2 + 0.34 * len(rows)   # litt mer plass per tiltak
+    fig_rng, ax_rng = plt.subplots(figsize=(9.6, fig_h))  # bredde ~full container
 
-        fig_h = 1.0 + 0.28 * len(rows)  # tettere vertikalt
-        fig_rng, ax_rng = plt.subplots(figsize=(7.6, fig_h))
+    x_max = max(highs) if highs else 1
+    x_max = x_max * (1.25 if x_max > 10_000 else 2.0)
+    ax_rng.set_xlim(0, x_max)
 
-        x_max = max(highs) if highs else 1
-        x_max = x_max * (1.25 if x_max > 10_000 else 2.0)
-        ax_rng.set_xlim(0, x_max)
+    for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
+        ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=6, alpha=0.35)
+        ax_rng.scatter([lo, hi], [i, i], s=36, color=PRIMARY, zorder=3)
+        ax_rng.scatter([mid], [i], s=90, color=SECONDARY, zorder=4)
+        ax_rng.text(hi + x_max*0.012, i,
+                    f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
+                    va="center", fontsize=12, color=PRIMARY)
 
-        for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
-            ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=5, alpha=0.32)
-            ax_rng.scatter([lo, hi], [i, i], s=26, color=PRIMARY, zorder=3)
-            ax_rng.scatter([mid], [i], s=70, color=SECONDARY, zorder=4)
-            ax_rng.text(hi + x_max*0.015, i,
-                        f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
-                        va="center", fontsize=11, color=PRIMARY)
+    # Venstrejusterte kategoritekster (vi tegner dem selv)
+    ax_rng.set_yticks([])
+    x0, x1 = ax_rng.get_xlim()
+    xpad = x0 + (x1 - x0) * 0.003
+    labels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
+    for i, txt in enumerate(labels):
+        ax_rng.text(xpad, i, txt, ha="left", va="center", fontsize=13, color=PRIMARY)
 
-        # --- VENSTREJUSTERTE KATEGORITEKSTER ---
-        ax_rng.set_yticks([])  # fjern standard y-etiketter
-        x0, x1 = ax_rng.get_xlim()
-        xpad = x0 + (x1 - x0) * 0.002  # litt luft fra kanten
-        labels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
-        for i, txt in enumerate(labels):
-            ax_rng.text(xpad, i, txt, ha="left", va="center", fontsize=12, color=PRIMARY)
+    # Venstrejustert x-aksenavn
+    ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
+    ax_rng.xaxis.set_label_coords(0.0, -0.06)
+    ax_rng.xaxis.label.set_horizontalalignment("left")
 
-        # Venstrejuster x-akse-tittel
-        ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
-        ax_rng.xaxis.set_label_coords(0.0, -0.06)
-        ax_rng.xaxis.label.set_horizontalalignment("left")
+    ax_rng.invert_yaxis()
+    plt.subplots_adjust(left=0.06, right=0.98, top=0.95, bottom=0.2)
+    ax_rng.spines["top"].set_visible(False)
+    ax_rng.spines["right"].set_visible(False)
+    ax_rng.spines["left"].set_visible(False)
+    ax_rng.grid(axis="x", linewidth=0.4, alpha=0.25)
 
-        ax_rng.invert_yaxis()
-        plt.subplots_adjust(left=0.06, right=0.98, top=0.92, bottom=0.18)
-        ax_rng.spines["top"].set_visible(False)
-        ax_rng.spines["right"].set_visible(False)
-        ax_rng.spines["left"].set_visible(False)
-        ax_rng.grid(axis="x", linewidth=0.35, alpha=0.25)
+    buf_rng = io.BytesIO()
+    fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=220)
+    buf_rng.seek(0)
+    st.image(buf_rng, use_container_width=True)
 
-        buf_rng = io.BytesIO()
-        fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=200)
-        buf_rng.seek(0)
-        st.image(buf_rng, use_container_width=True)
+    # ================== UNDER: DONUT + TEKST (FULL BREDDE) ==================
+    tot_lo = sum(lows)
+    tot_hi = sum(highs)
+    pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
+    pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
+    pct_mid = (pct_lo + pct_hi) / 2
+    remain = max(0, 100 - pct_mid)
 
-    # ---------------- Høyre: stor donut + tekst under ----------------
-    with g_right:
-        tot_lo = sum(lows)
-        tot_hi = sum(highs)
-        pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
-        pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
-        pct_mid = (pct_lo + pct_hi) / 2
+    fig_d, ax_d = plt.subplots(figsize=(4.6, 4.6))  # litt større donut
+    ax_d.pie(
+        [pct_mid, remain],
+        startangle=90,
+        counterclock=False,
+        colors=[SECONDARY, "#e5e5e5"],
+        wedgeprops=dict(width=0.40)
+    )
+    ax_d.axis("equal")
+    ax_d.text(0, 0.05, f"{pct_mid:.1f}%", ha="center", va="center",
+              fontsize=22, color=PRIMARY, fontweight="bold")
+    ax_d.text(0, -0.36, "samlet potensial", ha="center", va="center",
+              fontsize=11, color="#666")
 
-        fig_d, ax_d = plt.subplots(figsize=(3.8, 3.8))  # STØRRE donut
-        remain = max(0, 100 - pct_mid)
-        ax_d.pie(
-            [pct_mid, remain],
-            startangle=90,
-            counterclock=False,
-            colors=[SECONDARY, "#e5e5e5"],
-            wedgeprops=dict(width=0.38)
-        )
-        ax_d.axis("equal")
-        ax_d.text(0, 0.04, f"{pct_mid:.1f}%", ha="center", va="center",
-                  fontsize=20, color=PRIMARY, fontweight="bold")
-        ax_d.text(0, -0.34, "samlet potensial", ha="center", va="center",
-                  fontsize=10, color="#666")
+    buf_d = io.BytesIO()
+    fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=240)
+    buf_d.seek(0)
+    st.image(buf_d, use_container_width=True)
 
-        buf_d = io.BytesIO()
-        fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=220)
-        buf_d.seek(0)
-        st.image(buf_d, use_container_width=True)
-
-        st.markdown(
-            f"<div style='font-size:13px;color:#444;margin-top:2px;text-align:left;'>"
-            f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
-            f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
-            f"</div>",
-            unsafe_allow_html=True
-        )
+    # Venstrejustert tekst under donut
+    st.markdown(
+        f"<div style='font-size:13px;color:#444;margin-top:4px;text-align:left;'>"
+        f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
+        f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
+        f"</div>",
+        unsafe_allow_html=True
+    )
 # ============================================================================
+
 
 
 

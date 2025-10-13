@@ -360,13 +360,25 @@ if rows:
                         f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
                         va="center", fontsize=11, color=PRIMARY)
 
-        ax_rng.set_yticks(range(len(names)))
-        ax_rng.set_yticklabels(
-            [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)],
-            fontsize=12, color=PRIMARY
-        )
-        ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
-        ax_rng.invert_yaxis()
+       ax_rng.set_yticks([])  # fjern standard y-etiketter
+
+# Tegn egne, venstrejusterte etiketter helt ved venstre aksekant
+x0, x1 = ax_rng.get_xlim()
+labels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
+for i, txt in enumerate(labels):
+    ax_rng.text(x0, i, txt, ha="left", va="center", fontsize=12, color=PRIMARY)
+
+# Venstrejuster x-akse-tittel
+ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
+ax_rng.xaxis.set_label_coords(0.0, -0.06)          # sett anker til venstre
+ax_rng.xaxis.label.set_horizontalalignment("left") # eksplisitt venstrejuster
+
+ax_rng.invert_yaxis()
+plt.subplots_adjust(left=0.06, right=0.98, top=0.92, bottom=0.18)
+ax_rng.spines["top"].set_visible(False)
+ax_rng.spines["right"].set_visible(False)
+ax_rng.spines["left"].set_visible(False)
+ax_rng.grid(axis="x", linewidth=0.35, alpha=0.25)
         plt.subplots_adjust(left=0.26, right=0.98, top=0.92, bottom=0.18)
         ax_rng.spines["top"].set_visible(False)
         ax_rng.spines["right"].set_visible(False)

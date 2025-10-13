@@ -290,49 +290,13 @@ with st.expander("Kilder og forutsetninger", expanded=False):
     - **Energikarakter:** Enova – Karakterskalaen  
     """)
 
-# --- Typiske tiltak og besparelsesintervaller (kilde: Enova, NVE) ---
-MEASURE_DATA = {
-    "Oppvarming og tappevann": {
-        "keys": ["Oppvarming", "Tappevann"],
-        "reduction_pct": (10, 50),  # Varmepumpe / varmegjenvinning
-        "label": "Varmepumpe / varmegjenvinning",
-    },
-    "Ventilasjon": {
-        "keys": ["Ventilasjon"],
-        "reduction_pct": (10, 30),  # VAV, behovsstyring, lav SFP
-        "label": "Behovsstyrt ventilasjon (VAV)",
-    },
-    "Belysning": {
-        "keys": ["Belysning"],
-        "reduction_pct": (40, 60),  # LED + styring
-        "label": "LED-belysning og styring",
-    },
-}
+# ---------- Energisparepotensial: range + donut ----------
+st.markdown(
+    f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Estimert energisparepotensial (Enova)</h3>",
+    unsafe_allow_html=True
+)
 
-# --- Beregn sparepotensial per tiltak ---
-results = []
-for name, data in MEASURE_DATA.items():
-    total_pct = sum(pct.get(k, 0) for k in data["keys"])
-    kwh_total = arsforbruk * total_pct / 100
-    lav, hoy = data["reduction_pct"]
-    spare_lav = kwh_total * lav / 100
-    spare_hoy = kwh_total * hoy / 100
-
-    if total_pct > 0:
-        results.append({
-            "Tiltak": data["label"],
-            "Andel av bygg": f"{total_pct:.1f} %",
-            "Typisk besparelse": f"{lav}–{hoy} %",
-            "Sparepotensial (kWh/år)": f"{fmt_int(spare_lav)} – {fmt_int(spare_hoy)}",
-        })
-
-# --- Vis i tabellform ---
-if results:
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Estimert energisparepotensial (Enova)</h3>", unsafe_allow_html=True)
-# ---------- Energisparepotensial: range-visualisering ----------
-title("Estimert energisparepotensial (Enova)")
-
-# 1) Korrigerte formålsandeler (bruker samme logikk som i kakediagrammet)
+# 1) Korrigerte formålsandeler (samme logikk som i kakediagrammet)
 def corrected_pct_for(kategori: str) -> dict:
     p = SHARES[kategori].copy()
     if kategori == "Forretningsbygning":
@@ -346,28 +310,28 @@ def corrected_pct_for(kategori: str) -> dict:
 
 pct_corr = corrected_pct_for(kategori)
 
-# 2) Tiltak og intervaller (kilde: Enova/NVE – typiske spenn)
+# 2) Tiltak og besparelsesintervaller (Enova / NVE typiske spenn)
 MEASURE_DATA = {
     "Oppvarming og tappevann": {
         "keys": ["Oppvarming", "Tappevann"],
-        "reduction_pct": (10, 50),  # Varmepumpe / varmegjenvinning
+        "reduction_pct": (10, 50),   # Varmepumpe / varmegjenvinning
         "label": "Varmepumpe / varmegjenvinning",
     },
     "Ventilasjon": {
         "keys": ["Ventilasjon"],
-        "reduction_pct": (10, 30),  # VAV, behovsstyring, SFP-optimalisering
+        "reduction_pct": (10, 30),   # VAV, behovsstyring, SFP-optimalisering
         "label": "Behovsstyrt ventilasjon (VAV)",
     },
     "Belysning": {
         "keys": ["Belysning"],
-        "reduction_pct": (40, 60),  # LED + styring
+        "reduction_pct": (40, 60),   # LED + styring
         "label": "LED-belysning og styring",
     },
 }
 
 # 3) Regn ut kWh-intervaller per tiltak
 rows = []
-for name, data in MEASURE_DATA.items():
+for _, data in MEASURE_DATA.items():
     share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
     if share_pct <= 0:
         continue
@@ -376,7 +340,6 @@ for name, data in MEASURE_DATA.items():
     kwh_lo = kwh_basis * lo / 100
     kwh_hi = kwh_basis * hi / 100
     rows.append({
-        "name": name,
         "label": data["label"],
         "share_pct": share_pct,
         "kwh_lo": kwh_lo,
@@ -385,53 +348,87 @@ for name, data in MEASURE_DATA.items():
     })
 
 if rows:
-    # 4) Range-plot (lav–høy) med midtpunkt
-    names    = [r["label"] for r in rows]
-    lows     = [r["kwh_lo"] for r in rows]
-    highs    = [r["kwh_hi"] for r in rows]
-    mids     = [r["kwh_mid"] for r in rows]
-    shares   = [r["share_pct"] for r in rows]
+    # Litt strammere layout: mindre avstand mellom rader og slankere linjer
+    names  = [r["label"] for r in rows]
+    lows   = [r["kwh_lo"] for r in rows]
+    highs  = [r["kwh_hi"] for r in rows]
+    mids   = [r["kwh_mid"] for r in rows]
+    shares = [r["share_pct"] for r in rows]
 
-    fig_rng, ax_rng = plt.subplots(figsize=(5.8, 2.2 + 0.55*len(rows)))
+    # Kompakt høyde: base + litt per rad
+    fig_h = 1.6 + 0.36*len(rows)
+    fig_rng, ax_rng = plt.subplots(figsize=(5.8, fig_h))
 
-    max_x = max(highs) * 1.15 if highs else 1
+    max_x = max(highs) * (1.25 if max(highs) > 10_000 else 2.0)
+
     for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
-        # intervall-linje
-        ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=10, alpha=0.25)
-        # endepunkter (diskré)
-        ax_rng.scatter([lo, hi], [i, i], s=14, color=PRIMARY, zorder=3)
-        # midtpunkt
-        ax_rng.scatter([mid], [i], s=46, color=SECONDARY, zorder=4)
-        # tekst med kWh-intervall til høyre
-        ax_rng.text(hi + max_x*0.02, i,
+        # intervall-linje (slankere) + endepunkt + midtpunkt
+        ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=6, alpha=0.28)
+        ax_rng.scatter([lo, hi], [i, i], s=22, color=PRIMARY, zorder=3)
+        ax_rng.scatter([mid], [i], s=60, color=SECONDARY, zorder=4)
+        # tekst tett på høyre endepunkt
+        ax_rng.text(hi + max_x*0.015, i,
                     f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
                     va="center", fontsize=9, color=PRIMARY)
 
     ax_rng.set_yticks(range(len(names)))
-    # vis andel pr tiltak i etiketten: "LED-belysning …  (16 % av bygget)"
     ylabels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
     ax_rng.set_yticklabels(ylabels, fontsize=10, color=PRIMARY)
-    ax_rng.set_xlabel("kWh/år", fontsize=10, color=PRIMARY, labelpad=4)
+    ax_rng.set_xlabel("kWh/år", fontsize=10, color=PRIMARY, labelpad=2)
     ax_rng.set_xlim(0, max_x)
     ax_rng.invert_yaxis()
+    # Ryddige akser
     ax_rng.spines["top"].set_visible(False)
     ax_rng.spines["right"].set_visible(False)
     ax_rng.spines["left"].set_visible(False)
+    ax_rng.grid(axis="x", linewidth=0.3, alpha=0.25)
 
     buf_rng = io.BytesIO()
     fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=180)
     buf_rng.seek(0)
     st.image(buf_rng, width=580)
 
-    # 5) Liten oppsummering under
+    # 4) Oppsummering + donut
     tot_lo = sum(lows)
     tot_hi = sum(highs)
-    st.markdown(
-        f"<div style='font-size:12px;color:#666;margin-top:6px;'>"
-        f"Intervall viser typisk besparelse per tiltak. "
-        f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år."
-        f"</div>",
-        unsafe_allow_html=True
-    )
+    pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
+    pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
+    pct_mid = (pct_lo + pct_hi) / 2
+
+    c1, c2 = st.columns([1.4, 1])  # tekst + donut
+    with c1:
+        st.markdown(
+            f"<div style='font-size:12px;color:#666;margin-top:6px;'>"
+            f"Intervall viser typisk besparelse per tiltak. "
+            f"Estimert samlet potensial: "
+            f"<b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
+            f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+    with c2:
+        # Donut: viser midtprosent
+        fig_d, ax_d = plt.subplots(figsize=(2.4, 2.4))
+        remain = max(0, 100 - pct_mid)
+        wedges, _ = ax_d.pie(
+            [pct_mid, remain],
+            startangle=90,
+            counterclock=False,
+            colors=[SECONDARY, "#e5e5e5"],
+            wedgeprops=dict(width=0.38)
+        )
+        ax_d.axis("equal")
+        ax_d.text(0, 0, f"{pct_mid:.1f}%", ha="center", va="center",
+                  fontsize=12, color=PRIMARY, fontweight="bold")
+        # Liten undertittel
+        ax_d.text(0, -0.28, "samlet\npotensial", ha="center", va="center",
+                  fontsize=8, color="#666")
+
+        buf_d = io.BytesIO()
+        fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=200)
+        buf_d.seek(0)
+        st.image(buf_d, width=140)
+
 
 

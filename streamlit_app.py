@@ -193,7 +193,7 @@ with left:
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>", unsafe_allow_html=True)
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-    title("Kalkulert energikarakter*")
+    title("Kalkulert energikarakter")
     st.markdown(
         f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
         f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"

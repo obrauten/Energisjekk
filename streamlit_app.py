@@ -220,7 +220,7 @@ with left:
     farge = "#2e8b57" if diff <= 0 else ("#e6a700" if diff_pct < 25 else "#cc4444")
     vurdering = (
         "under TEK17-nivå – svært effektivt bygg" if diff <= 0 else
-        "omtrent på nivå med TEK17" if diff_pct < 25 else
+        "omtrent på nivå med TEK17" if diff_pct < 15 else
         "over TEK17-nivå – potensial for reduksjon"
     )
 

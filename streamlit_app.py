@@ -282,27 +282,19 @@ with right:
     st.image(buf_bar, width=480)
 
 
-# ---------- KILDER ----------
-with st.expander("Kilder og forutsetninger", expanded=False):
-    st.markdown("""
-    - **Formålsdeling:** NVE Rapport 2016:24  
-    - **Referanseverdier pr m² / tiltak:** Enova (veiledere og kunnskapsartikler)  
-    - **Energikarakter:** Enova – Karakterskalaen  
-    """)
-
-# ---------- Energisparepotensial: range + donut ----------
+# === FULL BREDD: Estimert energisparepotensial (Enova) =======================
 st.markdown(
-    f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Estimert energisparepotensial (Enova)</h3>",
+    f"<h3 style='color:{PRIMARY};margin:10px 0 6px 0;'>Estimert energisparepotensial (Enova)</h3>",
     unsafe_allow_html=True
 )
 
-# 1) Korrigerte formålsandeler (samme logikk som i kakediagrammet)
-def corrected_pct_for(kategori: str) -> dict:
-    p = SHARES[kategori].copy()
-    if kategori == "Forretningsbygning":
+# Korrigert formålsfordeling (samme logikk som i pie)
+def corrected_pct_for(kat: str) -> dict:
+    p = SHARES[kat].copy()
+    if kat == "Forretningsbygning":
         p["El.spesifikk"] += p.get("Belysning", 0)
         p["Belysning"] = 0
-    elif kategori == "Sykehus":
+    elif kat == "Sykehus":
         p["El.spesifikk"] += p.get("Ventilasjon", 0) + p.get("Belysning", 0)
         p["Ventilasjon"] = 0
         p["Belysning"] = 0
@@ -310,108 +302,101 @@ def corrected_pct_for(kategori: str) -> dict:
 
 pct_corr = corrected_pct_for(kategori)
 
-# 2) Tiltak og besparelsesintervaller (Enova / NVE typiske spenn)
+# Tiltak og intervaller
 MEASURE_DATA = {
     "Oppvarming og tappevann": {
         "keys": ["Oppvarming", "Tappevann"],
-        "reduction_pct": (10, 50),   # Varmepumpe / varmegjenvinning
+        "reduction_pct": (10, 50),
         "label": "Varmepumpe / varmegjenvinning",
     },
     "Ventilasjon": {
         "keys": ["Ventilasjon"],
-        "reduction_pct": (10, 30),   # VAV, behovsstyring, SFP-optimalisering
+        "reduction_pct": (10, 30),
         "label": "Behovsstyrt ventilasjon (VAV)",
     },
     "Belysning": {
         "keys": ["Belysning"],
-        "reduction_pct": (40, 60),   # LED + styring
+        "reduction_pct": (40, 60),
         "label": "LED-belysning og styring",
     },
 }
 
-# 3) Regn ut kWh-intervaller per tiltak
+# Beregn intervaller
 rows = []
-for _, data in MEASURE_DATA.items():
+for data in MEASURE_DATA.values():
     share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
     if share_pct <= 0:
         continue
-    kwh_basis = arsforbruk * (share_pct / 100)
+    basis = arsforbruk * (share_pct / 100)
     lo, hi = data["reduction_pct"]
-    kwh_lo = kwh_basis * lo / 100
-    kwh_hi = kwh_basis * hi / 100
     rows.append({
         "label": data["label"],
         "share_pct": share_pct,
-        "kwh_lo": kwh_lo,
-        "kwh_hi": kwh_hi,
-        "kwh_mid": (kwh_lo + kwh_hi) / 2,
+        "kwh_lo": basis * lo / 100,
+        "kwh_hi": basis * hi / 100,
     })
 
 if rows:
-    # Litt strammere layout: mindre avstand mellom rader og slankere linjer
-    names  = [r["label"] for r in rows]
-    lows   = [r["kwh_lo"] for r in rows]
-    highs  = [r["kwh_hi"] for r in rows]
-    mids   = [r["kwh_mid"] for r in rows]
-    shares = [r["share_pct"] for r in rows]
+    # To kolonner i full bredde: graf (venstre) + donut (høyre)
+    g_left, g_right = st.columns([2.2, 1])
 
-    # Kompakt høyde: base + litt per rad
-    fig_h = 1.6 + 0.36*len(rows)
-    fig_rng, ax_rng = plt.subplots(figsize=(5.8, fig_h))
+    # ---------------- Venstre: range chart ----------------
+    with g_left:
+        names  = [r["label"] for r in rows]
+        lows   = [r["kwh_lo"] for r in rows]
+        highs  = [r["kwh_hi"] for r in rows]
+        mids   = [(lo + hi) / 2 for lo, hi in zip(lows, highs)]
+        shares = [r["share_pct"] for r in rows]
 
-    max_x = max(highs) * (1.25 if max(highs) > 10_000 else 2.0)
+        # Kompakt høyde + venstre-justerte etiketter
+        fig_h = 1.2 + 0.30 * len(rows)
+        fig_rng, ax_rng = plt.subplots(figsize=(7.6, fig_h))
 
-    for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
-        # intervall-linje (slankere) + endepunkt + midtpunkt
-        ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=6, alpha=0.28)
-        ax_rng.scatter([lo, hi], [i, i], s=22, color=PRIMARY, zorder=3)
-        ax_rng.scatter([mid], [i], s=60, color=SECONDARY, zorder=4)
-        # tekst tett på høyre endepunkt
-        ax_rng.text(hi + max_x*0.015, i,
-                    f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
-                    va="center", fontsize=9, color=PRIMARY)
+        # Akse starter fra 0, så linjene “begynner” helt til venstre
+        x_max = max(highs) if highs else 1
+        # litt luft til høyre for tallene
+        x_max = x_max * (1.25 if x_max > 10_000 else 2.0)
+        ax_rng.set_xlim(0, x_max)
 
-    ax_rng.set_yticks(range(len(names)))
-    ylabels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
-    ax_rng.set_yticklabels(ylabels, fontsize=10, color=PRIMARY)
-    ax_rng.set_xlabel("kWh/år", fontsize=10, color=PRIMARY, labelpad=2)
-    ax_rng.set_xlim(0, max_x)
-    ax_rng.invert_yaxis()
-    # Ryddige akser
-    ax_rng.spines["top"].set_visible(False)
-    ax_rng.spines["right"].set_visible(False)
-    ax_rng.spines["left"].set_visible(False)
-    ax_rng.grid(axis="x", linewidth=0.3, alpha=0.25)
+        for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
+            ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=5, alpha=0.32)
+            ax_rng.scatter([lo, hi], [i, i], s=26, color=PRIMARY, zorder=3)
+            ax_rng.scatter([mid], [i], s=70, color=SECONDARY, zorder=4)
+            ax_rng.text(hi + x_max*0.015, i,
+                        f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
+                        va="center", fontsize=11, color=PRIMARY)
 
-    buf_rng = io.BytesIO()
-    fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=180)
-    buf_rng.seek(0)
-    st.image(buf_rng, width=580)
-
-    # 4) Oppsummering + donut
-    tot_lo = sum(lows)
-    tot_hi = sum(highs)
-    pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
-    pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
-    pct_mid = (pct_lo + pct_hi) / 2
-
-    c1, c2 = st.columns([1.4, 1])  # tekst + donut
-    with c1:
-        st.markdown(
-            f"<div style='font-size:12px;color:#666;margin-top:6px;'>"
-            f"Intervall viser typisk besparelse per tiltak. "
-            f"Estimert samlet potensial: "
-            f"<b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
-            f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
-            f"</div>",
-            unsafe_allow_html=True
+        ax_rng.set_yticks(range(len(names)))
+        ax_rng.set_yticklabels(
+            [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)],
+            fontsize=12, color=PRIMARY
         )
+        ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
+        ax_rng.invert_yaxis()
+        # Strammere layout + venstremarg for lange etiketter
+        plt.subplots_adjust(left=0.26, right=0.98, top=0.92, bottom=0.18)
+        # Ryddige akser
+        ax_rng.spines["top"].set_visible(False)
+        ax_rng.spines["right"].set_visible(False)
+        ax_rng.spines["left"].set_visible(False)
+        ax_rng.grid(axis="x", linewidth=0.35, alpha=0.25)
 
-    with c2:
-        # Donut: viser midtprosent
-        fig_d, ax_d = plt.subplots(figsize=(2.4, 2.4))
+        buf_rng = io.BytesIO()
+        fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=200)
+        buf_rng.seek(0)
+        st.image(buf_rng, use_column_width=True)
+
+    # ---------------- Høyre: stor donut + tekst under ----------------
+    with g_right:
+        tot_lo = sum(lows)
+        tot_hi = sum(highs)
+        pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
+        pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
+        pct_mid = (pct_lo + pct_hi) / 2
+
+        fig_d, ax_d = plt.subplots(figsize=(3.6, 3.6))  # STØRRE donut
         remain = max(0, 100 - pct_mid)
-        wedges, _ = ax_d.pie(
+        ax_d.pie(
             [pct_mid, remain],
             startangle=90,
             counterclock=False,
@@ -419,16 +404,31 @@ if rows:
             wedgeprops=dict(width=0.38)
         )
         ax_d.axis("equal")
-        ax_d.text(0, 0, f"{pct_mid:.1f}%", ha="center", va="center",
-                  fontsize=12, color=PRIMARY, fontweight="bold")
-        # Liten undertittel
-        ax_d.text(0, -0.28, "samlet\npotensial", ha="center", va="center",
-                  fontsize=8, color="#666")
+        ax_d.text(0, 0.04, f"{pct_mid:.1f}%", ha="center", va="center",
+                  fontsize=20, color=PRIMARY, fontweight="bold")
+        ax_d.text(0, -0.34, "samlet potensial", ha="center", va="center",
+                  fontsize=10, color="#666")
 
         buf_d = io.BytesIO()
-        fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=200)
+        fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=220)
         buf_d.seek(0)
-        st.image(buf_d, width=140)
+        st.image(buf_d, use_column_width=True)
+
+        st.markdown(
+            f"<div style='font-size:12px;color:#666;margin-top:6px;text-align:center;'>"
+            f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
+            f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
+            f"</div>",
+            unsafe_allow_html=True
+        )
+# ============================================================================ 
+# ---------- KILDER ----------
+with st.expander("Kilder og forutsetninger", expanded=False):
+    st.markdown("""
+    - **Formålsdeling:** NVE Rapport 2016:24  
+    - **Referanseverdier pr m² / tiltak:** Enova (veiledere og kunnskapsartikler)  
+    - **Energikarakter:** Enova – Karakterskalaen  
+    """)
 
 
 

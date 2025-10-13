@@ -175,13 +175,12 @@ badge_color = BADGE_COLORS[label]
 
 # ---------- LAYOUT ----------
 left, right = st.columns([1, 1.5])
-
 with left:
     title("Årsforbruk")
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-        title("Spesifikt årsforbruk")
+    title("Spesifikt årsforbruk")
     st.markdown(
         f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>",
         unsafe_allow_html=True
@@ -206,7 +205,6 @@ with left:
     diff = sp - ref_tek17
     diff_pct = (diff / ref_tek17) * 100 if ref_tek17 else 0
 
-    # --- Vis tekst med referanse og differanse ---
     farge = "#2e8b57" if diff <= 0 else ("#e6a700" if diff_pct < 25 else "#cc4444")
     vurdering = (
         "under TEK17-nivå – svært effektivt bygg" if diff <= 0 else
@@ -231,7 +229,6 @@ with left:
 
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-
     title("Kalkulert energikarakter")
     st.markdown(
         f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
@@ -239,7 +236,6 @@ with left:
         f"{label}</div>",
         unsafe_allow_html=True
     )
-
 
 # ---------- HØYRE: formålsfordelt forbruk ----------
 with right:

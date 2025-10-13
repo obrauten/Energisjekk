@@ -133,20 +133,7 @@ SHARES = {
     "Lett industribygning, verksted":{"Oppvarming":63,"Tappevann":2,"Ventilasjon":5,"Belysning":13,"El.spesifikk":15,"Kjøling":2},
     "Kombinasjon":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":10,"Belysning":15,"El.spesifikk":9,"Kjøling":0},
 }
-# --- Formålsfordeling ---
-pct = SHARES[kategori].copy()
 
-# --- Korreksjoner for spesielle byggtyper ---
-# Forretningsbygg: Belysning inkludert i el.spesifikk
-if kategori == "Forretningsbygning":
-    pct["El.spesifikk"] += pct["Belysning"]
-    pct["Belysning"] = 0
-
-# Sykehus: Ventilasjon og belysning inkludert i el.spesifikk
-if kategori == "Sykehus":
-    pct["El.spesifikk"] += pct["Ventilasjon"] + pct["Belysning"]
-    pct["Ventilasjon"] = 0
-    pct["Belysning"] = 0
 
 # ---------- REFERANSER TIL SØYLE ----------
 REF = {
@@ -207,36 +194,77 @@ with left:
     )
 
 
-# ---------- HØYRE SIDE ----------
-with right:
-    title("Energiforbruk formålsfordelt")
-    pct = SHARES[kategori].copy()
+# ---------- HØYRE: formålsfordelt forbruk ----------
+title("Energiforbruk formålsfordelt*")
 
-    FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk (inkl. belysning)","El.spesifikk","Kjøling"]
-    FORMAL_COLORS = {
-        "Oppvarming":  "#33C831",
-        "Tappevann":   "#097E3E",
-        "Ventilasjon": "#74D680",
-        "Belysning":   "#FFC107",
-        "El.spesifikk":"#2E7BB4",
-        "El.spesifikk (inkl. belysning)":"#2E7BB4",
-        "Kjøling":     "#00ACC1",
-    }
+# Hent og korriger formålsdeling
+pct = SHARES[kategori].copy()
 
-    ordered_pct = {k: pct[k] for k in FORMAL_ORDER if k in pct and pct[k] > 0}
-    values = [arsforbruk * (v/100) for v in ordered_pct.values()]
-    labels = [f"{k}\n{fmt_int(val)} kWh" for k, val in zip(ordered_pct.keys(), values)]
-    colors = [FORMAL_COLORS.get(k, "#999999") for k in ordered_pct.keys()]
+# Korreksjoner for spesielle byggtyper
+note_text = None
+if kategori == "Forretningsbygning":
+    pct["El.spesifikk"] += pct.get("Belysning", 0)
+    pct["Belysning"] = 0
+    note_text = "For **Forretningsbygning** er *belysning* inkludert i **El.spesifikk** (ref. NVE 2016:24)."
+elif kategori == "Sykehus":
+    pct["El.spesifikk"] += pct.get("Ventilasjon", 0) + pct.get("Belysning", 0)
+    pct["Ventilasjon"] = 0
+    pct["Belysning"] = 0
+    note_text = "For **Sykehus** er *ventilasjon* og *belysning* inkludert i **El.spesifikk** (ref. NVE 2016:24)."
 
-    fig, ax = plt.subplots(figsize=(5.2, 4.8))
-    ax.pie(values, labels=labels, colors=colors,
-           autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
-    ax.axis("equal")
+# Rekke­følge og farger
+FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk","Kjøling"]
+FORMAL_COLORS = {
+    "Oppvarming":  "#33C831",
+    "Tappevann":   "#097E3E",
+    "Ventilasjon": "#74D680",
+    "Belysning":   "#FFC107",
+    "El.spesifikk":"#2E7BB4",
+    "Kjøling":     "#00ACC1",
+}
 
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
-    buf.seek(0)
-    st.image(buf, width=580)
+# Visningsnavn (slik at etiketten i figuren blir tydelig)
+display_name = {
+    "Oppvarming": "Oppvarming",
+    "Tappevann": "Tappevann",
+    "Ventilasjon": "Ventilasjon",
+    "Belysning": "Belysning",
+    "El.spesifikk": (
+        "El.spesifikk (inkl. belysning)" if kategori == "Forretningsbygning"
+        else ("El.spesifikk (inkl. ventilasjon og belysning)" if kategori == "Sykehus"
+              else "El.spesifikk")
+    ),
+    "Kjøling": "Kjøling",
+}
+
+# Filtrer ut 0-poster og bygg datasett i ønsket rekkefølge
+ordered = [(k, pct[k]) for k in FORMAL_ORDER if k in pct and pct[k] > 0]
+values = [arsforbruk * (v/100) for _, v in ordered]
+labels = [f"{display_name[k]}\n{fmt_int(val)} kWh" for k, val in zip([k for k,_ in ordered], values)]
+colors = [FORMAL_COLORS[k] for k,_ in ordered]
+
+# Tegn sektordiagrammet i kontrollert størrelse
+fig, ax = plt.subplots(figsize=(5.2, 4.8))
+ax.pie(values, labels=labels, colors=colors,
+       autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
+ax.axis("equal")
+
+buf = io.BytesIO()
+fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
+buf.seek(0)
+st.image(buf, width=580)
+
+# Fotnote under figuren
+if note_text:
+    st.markdown(
+        f"<div style='font-size:12px;color:#666;margin-top:6px;'>* {note_text}</div>",
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        "<div style='font-size:12px;color:#666;margin-top:6px;'>* Kategorier følger NVE 2016:24.</div>",
+        unsafe_allow_html=True
+    )
 
     title("Energibruk pr. m² (referanse vs. bygg)")
     cols = REF["labels"] + ["AKTUELT BYGG"]

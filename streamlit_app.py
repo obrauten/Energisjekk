@@ -56,24 +56,34 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Tilpass farger på sliders (EnergiPartner-grønn) ---
+# --- Nøytral grå sliderstil (matcher input-feltene) ---
 st.markdown("""
 <style>
-div[data-baseweb="slider"] > div > div {
-    background-color: #33C831 !important;
-}
-div[data-baseweb="slider"] > div > div > div {
-    background-color: #097E3E !important;
-}
-div[data-baseweb="slider"] div[role="slider"] {
-    background-color: #33C831 !important;
-    border: 2px solid #097E3E !important;
-}
-div[data-baseweb="slider"] div[role="slider"]:hover {
-    background-color: #27b52a !important;
-}
+/* Lys grå bakgrunn på hele slider-området */
 div[data-baseweb="slider"] > div {
-    background-color: #cceccc !important;
+    background-color: #e5e5e5 !important;
+}
+
+/* Den aktive delen (valgt område) */
+div[data-baseweb="slider"] > div > div > div {
+    background-color: #999999 !important;
+}
+
+/* Selve «knappen» (tommel) */
+div[data-baseweb="slider"] div[role="slider"] {
+    background-color: #666666 !important;
+    border: 1px solid #555555 !important;
+}
+
+/* Hovereffekt – litt mørkere grå */
+div[data-baseweb="slider"] div[role="slider"]:hover {
+    background-color: #444444 !important;
+}
+
+/* Tallverdiene over sliderne */
+div[data-baseweb="slider"] span {
+    color: #444444 !important;
+    font-weight: 600;
 }
 </style>
 """, unsafe_allow_html=True)

@@ -168,7 +168,7 @@ label = energy_label(sp, THRESH.get(kategori, THRESH["Kombinasjon"]))
 badge_color = BADGE_COLORS[label]
 
 # --- Layout ---
-left, right = st.columns([1.05, 1])
+left, right = st.columns([1, 1.5])
 
 # ========== VENSTRE ==========
 with left:

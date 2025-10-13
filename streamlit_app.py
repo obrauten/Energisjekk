@@ -12,37 +12,20 @@ logo_b64 = None
 if logo_path.exists():
     logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
 
-# ---------- LOGO OG TOPP ----------
+# ---------- LOGO OG TOPP (uten lenker på tittel) ----------
 st.markdown(f"""
 <style>
 .ep-header {{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #097E3E;
-  margin-bottom: 10px;
+  display:flex; flex-direction:column; align-items:flex-start;
+  padding-bottom:10px; border-bottom:2px solid #097E3E; margin-bottom:10px;
 }}
-.ep-logo img {{
-  display: block;
-  max-width: 180px;
-  margin-bottom: 4px;
-}}
-.ep-headings h1 {{
-  color: #097E3E;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-}}
-.ep-headings h4 {{
-  color: #097E3E;
-  margin: 2px 0 0 0;
-  line-height: 1.25;
-}}
-@media (max-width: 600px){{
-  .ep-logo img {{ max-width: 130px; }}
-  .ep-headings h1 {{ font-size: 1.6rem; }}
-  .ep-headings h4 {{ font-size: 1.0rem; }}
+.ep-logo img {{ display:block; max-width:180px; margin-bottom:6px; }}
+.ep-title   {{ color:#097E3E; font-weight:700; font-size:28px; line-height:1.2; margin:0; }}
+.ep-sub     {{ color:#097E3E; font-size:16px;  line-height:1.25; margin:2px 0 0 0; }}
+@media (max-width:600px){{
+  .ep-logo img {{ max-width:130px; }}
+  .ep-title   {{ font-size:26px; }}
+  .ep-sub     {{ font-size:15px;  }}
 }}
 </style>
 
@@ -50,13 +33,10 @@ st.markdown(f"""
   <div class="ep-logo">
     {"<img src='data:image/png;base64," + logo_b64 + "' alt='EnergiPartner logo'/>" if logo_b64 else ""}
   </div>
-  <div class="ep-headings">
-    <h1>💡 Energisjekk</h1>
-    <h4>Rask vurdering av energibruk og energikarakter</h4>
-  </div>
+  <div class="ep-title">💡 Energisjekk</div>
+  <div class="ep-sub">Rask vurdering av energibruk og energikarakter</div>
 </div>
 """, unsafe_allow_html=True)
-
 
 # ---------- FARGER ----------
 PRIMARY   = "#097E3E"

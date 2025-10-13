@@ -281,9 +281,9 @@ with right:
     buf_bar.seek(0)
     st.image(buf_bar, width=480)
 
-# === FULL BREDDE: Estimert energisparepotensial ==============================
+# === ENKEL VISUAL: Donut (venstre) + punktliste (høyre) ======================
 st.markdown(
-    f"<div style='color:{PRIMARY}; font-size:18px; font-weight:600; margin:6px 0 10px 0;'>Estimert energisparepotensial</div>",
+    f"<div style='color:{PRIMARY}; font-size:18px; font-weight:600; margin:6px 0 12px 0;'>Estimert energisparepotensial</div>",
     unsafe_allow_html=True
 )
 
@@ -318,7 +318,7 @@ MEASURE_DATA = {
     },
 }
 
-# ---------------- Beregn rader ----------------
+# ---------------- Beregn tiltak og total ----------------
 rows = []
 for data in MEASURE_DATA.values():
     share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
@@ -333,92 +333,88 @@ for data in MEASURE_DATA.values():
         "kwh_hi": basis * hi / 100,
     })
 
-if rows:
-    names  = [r["label"] for r in rows]
-    lows   = [r["kwh_lo"] for r in rows]
-    highs  = [r["kwh_hi"] for r in rows]
-    mids   = [(lo + hi) / 2 for lo, hi in zip(lows, highs)]
-    shares = [r["share_pct"] for r in rows]
+if not rows:
+    st.info("Ingen relevante tiltak for valgt kategori.")
+else:
+    # Sortér tiltak etter høyest midtverdi (mest effekt øverst)
+    rows.sort(key=lambda r: (r["kwh_lo"] + r["kwh_hi"]) / 2, reverse=True)
 
-    # ================== ØVERST: RANGE-CHART I FULL BREDDE ==================
-    fig_h = 1.25 + 0.36 * len(rows)   # litt mer plass per tiltak
-    fig_rng, ax_rng = plt.subplots(figsize=(10.5, fig_h))
-
-    x_max = max(highs) if highs else 1
-    x_max = x_max * (1.25 if x_max > 10_000 else 2.0)
-    ax_rng.set_xlim(0, x_max)
-
-    for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
-        ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=6, alpha=0.35)
-        ax_rng.scatter([lo, hi], [i, i], s=40, color=PRIMARY, zorder=3)
-        ax_rng.scatter([mid], [i], s=95, color=SECONDARY, zorder=4)
-        ax_rng.text(hi + x_max*0.012, i,
-                    f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
-                    va="center", fontsize=12, color=PRIMARY)
-
-    # Venstrejusterte kategoritekster
-    ax_rng.set_yticks([])
-    x0, x1 = ax_rng.get_xlim()
-    xpad = x0 + (x1 - x0) * 0.003
-    labels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
-    for i, txt in enumerate(labels):
-        ax_rng.text(xpad, i, txt, ha="left", va="center", fontsize=13, color=PRIMARY)
-
-    # Unngå overlapp: ekstra pad og større bunnmargin
-    ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=10)
-    ax_rng.tick_params(axis="x", pad=6)
-    ax_rng.xaxis.set_label_coords(0.0, -0.08)
-    ax_rng.xaxis.label.set_horizontalalignment("left")
-
-    ax_rng.invert_yaxis()
-    plt.subplots_adjust(left=0.06, right=0.985, top=0.96, bottom=0.28)  # større bottom
-    ax_rng.spines["top"].set_visible(False)
-    ax_rng.spines["right"].set_visible(False)
-    ax_rng.spines["left"].set_visible(False)
-    ax_rng.grid(axis="x", linewidth=0.45, alpha=0.25)
-
-    buf_rng = io.BytesIO()
-    fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=230)
-    buf_rng.seek(0)
-    st.image(buf_rng, use_container_width=True)
-
-    # ================== UNDER: DONUT + TEKST (FULL BREDDE) ==================
-    tot_lo = sum(lows)
-    tot_hi = sum(highs)
+    tot_lo = sum(r["kwh_lo"] for r in rows)
+    tot_hi = sum(r["kwh_hi"] for r in rows)
     pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
     pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
     pct_mid = (pct_lo + pct_hi) / 2
     remain = max(0, 100 - pct_mid)
 
-    # Bedre skalering: større canvas + tykkere ring
-    fig_d, ax_d = plt.subplots(figsize=(6.0, 6.0))
-    ax_d.pie(
-        [pct_mid, remain],
-        startangle=90,
-        counterclock=False,
-        colors=[SECONDARY, "#e5e5e5"],
-        wedgeprops=dict(width=0.42)  # litt tykkere ring
-    )
-    ax_d.axis("equal")
-    ax_d.text(0, 0.06, f"{pct_mid:.1f}%", ha="center", va="center",
-              fontsize=26, color=PRIMARY, fontweight="bold")
-    ax_d.text(0, -0.38, "samlet potensial", ha="center", va="center",
-              fontsize=12, color="#666")
+    # =============== Layout: Venstre (donut) / Høyre (punktliste) ===========
+    left, right = st.columns([1.05, 1.25], gap="large")
 
-    # Litt strammere «tight» så den fyller bredden penere
-    buf_d = io.BytesIO()
-    fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=240)
-    buf_d.seek(0)
-    st.image(buf_d, use_container_width=True)
+    # ---------------- Venstre: DONUT ----------------
+    with left:
+        fig_d, ax_d = plt.subplots(figsize=(4.8, 4.8))
+        ax_d.pie(
+            [pct_mid, remain],
+            startangle=90,
+            counterclock=False,
+            colors=[SECONDARY, "#e8e8e8"],
+            wedgeprops=dict(width=0.44)
+        )
+        ax_d.axis("equal")
+        ax_d.text(0, 0.06, f"{pct_mid:.1f}%", ha="center", va="center",
+                  fontsize=26, color=PRIMARY, fontweight="bold")
+        ax_d.text(0, -0.38, "samlet potensial", ha="center", va="center",
+                  fontsize=11, color="#666")
 
-    st.markdown(
-        f"<div style='font-size:13px;color:#444;margin-top:6px;text-align:left;'>"
-        f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
-        f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
-        f"</div>",
-        unsafe_allow_html=True
-    )
-# ============================================================================
+        buf_d = io.BytesIO()
+        fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=240)
+        buf_d.seek(0)
+        st.image(buf_d, use_container_width=True)
+
+        st.markdown(
+            f"<div style='font-size:13px; color:#444; text-align:left; margin-top:6px;'>"
+            f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
+            f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+    # ---------------- Høyre: PUNKTLISTE ----------------
+    with right:
+        # Konsistent linjehøyde for å «speile» donut-høyden visuelt
+        item_css = """
+        <style>
+        .tiltak-list { 
+            list-style: none; padding: 0; margin: 0;
+        }
+        .tiltak-item {
+            display: flex; gap: 10px; align-items: baseline;
+            line-height: 1.4; margin: 8px 0;
+        }
+        .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: %s; margin-top: 6px; flex: 0 0 8px;
+        }
+        .ti-title { font-weight: 600; color: %s; font-size: 15px; }
+        .ti-sub   { color: #555; font-size: 13px; }
+        </style>
+        """ % (SECONDARY, PRIMARY)
+        st.markdown(item_css, unsafe_allow_html=True)
+
+        html_items = ["<ul class='tiltak-list'>"]
+        for r in rows:
+            title = f"{r['label']}"
+            sub = f"{r['share_pct']:.0f} % av bygget · {fmt_int(r['kwh_lo'])}–{fmt_int(r['kwh_hi'])} kWh/år"
+            html_items.append(
+                f"<li class='tiltak-item'><span class='dot'></span>"
+                f"<div><div class='ti-title'>{title}</div>"
+                f"<div class='ti-sub'>{sub}</div></div></li>"
+            )
+        html_items.append("</ul>")
+
+        st.markdown("".join(html_items), unsafe_allow_html=True)
+
+# =============================================================================
+
 
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

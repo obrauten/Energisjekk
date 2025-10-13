@@ -82,24 +82,42 @@ def parse_int_with_spaces(text: str, default=0):
     except ValueError:
         return default
 
-# --- Inndata ---
-CATEGORIES = [
-    "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
-    "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
-    "Forretningsbygning","Kulturbygning","Lett industribygning, verksted","Kombinasjon",
-]
-
+# ---- Inputs (sliders) ----
 c1, c2, c3 = st.columns([1.2, 1, 1])
+
 with c1:
-    kategori = st.selectbox("Bygningskategori", CATEGORIES, index=1)
+    kategori = st.selectbox(
+        "Bygningskategori",
+        [
+            "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
+            "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
+            "Forretningsbygning","Kulturbygning","Lett industribygning, verksted","Kombinasjon",
+        ],
+        index=1
+    )
+
 with c2:
-    arsforbruk_txt = st.text_input("Årsforbruk (kWh)", fmt_int(500_900))
-    arsforbruk = parse_int_with_spaces(arsforbruk_txt, 500_900)
+    arsforbruk = st.slider(
+        "Årsforbruk (kWh)",
+        min_value=0,
+        max_value=2_000_000,   # juster taket hvis du vil
+        value=500_000,
+        step=1_000,            # ±1000 på tasten/drag
+    )
+    st.caption(f"{fmt_int(arsforbruk)} kWh")
+
 with c3:
-    areal_txt = st.text_input("Oppvarmet areal (m² BRA)", fmt_int(3000))
-    areal = parse_int_with_spaces(areal_txt, 3000)
+    areal = st.slider(
+        "Oppvarmet areal (m² BRA)",
+        min_value=50,
+        max_value=50_000,      # juster taket hvis du vil
+        value=3_000,
+        step=100,              # ±100
+    )
+    st.caption(f"{fmt_int(areal)} m² BRA")
 
 sp = arsforbruk / areal
+
 
 # --- Formålsdeling (prosent) ---
 SHARES = {

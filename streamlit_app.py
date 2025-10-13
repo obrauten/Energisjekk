@@ -188,21 +188,33 @@ with left:
 
     # --- TEK17-referansetall pr kategori ---
     TEK17_REF = {
-        "Barnehage": 120,
-        "Kontorbygning": 125,
+        "Barnehage": 135,
+        "Kontorbygning": 115,
         "Skolebygning": 110,
-        "Universitets- og høgskolebygning": 120,
-        "Sykehus": 220,
-        "Sykehjem": 180,
-        "Hotellbygning": 150,
-        "Idrettsbygning": 130,
-        "Forretningsbygning": 140,
+        "Universitets- og høgskolebygning": 125,
+        "Sykehus": 225,                             # alternativt nivå: 265
+        "Sykehjem": 195,                            # alternativt nivå: 230
+        "Hotellbygning": 170,
+        "Idrettsbygning": 145,
+        "Forretningsbygning": 180,
         "Kulturbygning": 130,
-        "Lett industribygning, verksted": 150,
+        "Lett industribygning, verksted": 140,      # alternativt nivå: 160
         "Kombinasjon": 135,
     }
-    ref_tek17 = TEK17_REF.get(kategori, 130)
-    diff = sp - ref_tek17
+
+    # Parentesverdier der TEK17 oppgir to tall (vises i grått som "ev. XXX")
+    TEK17_ALT = {
+        "Sykehus": 265,
+        "Sykehjem": 230,
+        "Lett industribygning, verksted": 160,
+}
+
+    ref_tek17 = TEK17_REF.get(kategori)
+    alt_tek17 = TEK17_ALT.get(kategori)
+
+    # beregn differanse mot TEK17
+    spes = sp  # du har allerede beregnet sp = arsforbruk / areal
+    diff = spes - ref_tek17 if ref_tek17 else 0
     diff_pct = (diff / ref_tek17) * 100 if ref_tek17 else 0
 
     farge = "#2e8b57" if diff <= 0 else ("#e6a700" if diff_pct < 25 else "#cc4444")

@@ -329,5 +329,109 @@ for name, data in MEASURE_DATA.items():
 # --- Vis i tabellform ---
 if results:
     st.markdown(f"<h3 style='color:{PRIMARY};margin-top:16px;'>Estimert energisparepotensial (Enova)</h3>", unsafe_allow_html=True)
-    st.table(pd.DataFrame(results))
+# ---------- Energisparepotensial: range-visualisering ----------
+title("Estimert energisparepotensial (Enova)")
+
+# 1) Korrigerte formålsandeler (bruker samme logikk som i kakediagrammet)
+def corrected_pct_for(kategori: str) -> dict:
+    p = SHARES[kategori].copy()
+    if kategori == "Forretningsbygning":
+        p["El.spesifikk"] += p.get("Belysning", 0)
+        p["Belysning"] = 0
+    elif kategori == "Sykehus":
+        p["El.spesifikk"] += p.get("Ventilasjon", 0) + p.get("Belysning", 0)
+        p["Ventilasjon"] = 0
+        p["Belysning"] = 0
+    return p
+
+pct_corr = corrected_pct_for(kategori)
+
+# 2) Tiltak og intervaller (kilde: Enova/NVE – typiske spenn)
+MEASURE_DATA = {
+    "Oppvarming og tappevann": {
+        "keys": ["Oppvarming", "Tappevann"],
+        "reduction_pct": (10, 50),  # Varmepumpe / varmegjenvinning
+        "label": "Varmepumpe / varmegjenvinning",
+    },
+    "Ventilasjon": {
+        "keys": ["Ventilasjon"],
+        "reduction_pct": (10, 30),  # VAV, behovsstyring, SFP-optimalisering
+        "label": "Behovsstyrt ventilasjon (VAV)",
+    },
+    "Belysning": {
+        "keys": ["Belysning"],
+        "reduction_pct": (40, 60),  # LED + styring
+        "label": "LED-belysning og styring",
+    },
+}
+
+# 3) Regn ut kWh-intervaller per tiltak
+rows = []
+for name, data in MEASURE_DATA.items():
+    share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
+    if share_pct <= 0:
+        continue
+    kwh_basis = arsforbruk * (share_pct / 100)
+    lo, hi = data["reduction_pct"]
+    kwh_lo = kwh_basis * lo / 100
+    kwh_hi = kwh_basis * hi / 100
+    rows.append({
+        "name": name,
+        "label": data["label"],
+        "share_pct": share_pct,
+        "kwh_lo": kwh_lo,
+        "kwh_hi": kwh_hi,
+        "kwh_mid": (kwh_lo + kwh_hi) / 2,
+    })
+
+if rows:
+    # 4) Range-plot (lav–høy) med midtpunkt
+    names    = [r["label"] for r in rows]
+    lows     = [r["kwh_lo"] for r in rows]
+    highs    = [r["kwh_hi"] for r in rows]
+    mids     = [r["kwh_mid"] for r in rows]
+    shares   = [r["share_pct"] for r in rows]
+
+    fig_rng, ax_rng = plt.subplots(figsize=(5.8, 2.2 + 0.55*len(rows)))
+
+    max_x = max(highs) * 1.15 if highs else 1
+    for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
+        # intervall-linje
+        ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=10, alpha=0.25)
+        # endepunkter (diskré)
+        ax_rng.scatter([lo, hi], [i, i], s=14, color=PRIMARY, zorder=3)
+        # midtpunkt
+        ax_rng.scatter([mid], [i], s=46, color=SECONDARY, zorder=4)
+        # tekst med kWh-intervall til høyre
+        ax_rng.text(hi + max_x*0.02, i,
+                    f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
+                    va="center", fontsize=9, color=PRIMARY)
+
+    ax_rng.set_yticks(range(len(names)))
+    # vis andel pr tiltak i etiketten: "LED-belysning …  (16 % av bygget)"
+    ylabels = [f"{n}  ({s:.0f} % av bygget)" for n, s in zip(names, shares)]
+    ax_rng.set_yticklabels(ylabels, fontsize=10, color=PRIMARY)
+    ax_rng.set_xlabel("kWh/år", fontsize=10, color=PRIMARY, labelpad=4)
+    ax_rng.set_xlim(0, max_x)
+    ax_rng.invert_yaxis()
+    ax_rng.spines["top"].set_visible(False)
+    ax_rng.spines["right"].set_visible(False)
+    ax_rng.spines["left"].set_visible(False)
+
+    buf_rng = io.BytesIO()
+    fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=180)
+    buf_rng.seek(0)
+    st.image(buf_rng, width=580)
+
+    # 5) Liten oppsummering under
+    tot_lo = sum(lows)
+    tot_hi = sum(highs)
+    st.markdown(
+        f"<div style='font-size:12px;color:#666;margin-top:6px;'>"
+        f"Intervall viser typisk besparelse per tiltak. "
+        f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år."
+        f"</div>",
+        unsafe_allow_html=True
+    )
+
 

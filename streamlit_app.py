@@ -204,97 +204,53 @@ with right:
     # Korreksjoner for spesielle byggtyper
     note_text = None
     if kategori == "Forretningsbygning":
-    pct["El.spesifikk"] += pct.get("Belysning", 0)
-    pct["Belysning"] = 0
-    note_text = "For **Forretningsbygning** er *belysning* inkludert i **El.spesifikk** (ref. NVE 2016:24)."
+        pct["El.spesifikk"] += pct.get("Belysning", 0)
+        pct["Belysning"] = 0
+        note_text = "For <b>Forretningsbygning</b> er belysning inkludert i <b>El.spesifikk</b> (NVE 2016:24)."
     elif kategori == "Sykehus":
-    pct["El.spesifikk"] += pct.get("Ventilasjon", 0) + pct.get("Belysning", 0)
-    pct["Ventilasjon"] = 0
-    pct["Belysning"] = 0
-    note_text = "For **Sykehus** er *ventilasjon* og *belysning* inkludert i **El.spesifikk** (ref. NVE 2016:24)."
+        pct["El.spesifikk"] += pct.get("Ventilasjon", 0) + pct.get("Belysning", 0)
+        pct["Ventilasjon"] = 0
+        pct["Belysning"] = 0
+        note_text = "For <b>Sykehus</b> er ventilasjon og belysning inkludert i <b>El.spesifikk</b> (NVE 2016:24)."
 
-    # Rekke­følge og farger
-    FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk","Kjøling"]
+    FORMAL_ORDER  = ["Oppvarming","Tappevann","Ventilasjon","Belysning","El.spesifikk","Kjøling"]
     FORMAL_COLORS = {
-        "Oppvarming":  "#33C831",
-        "Tappevann":   "#097E3E",
-        "Ventilasjon": "#74D680",
-        "Belysning":   "#FFC107",
-        "El.spesifikk":"#2E7BB4",
-        "Kjøling":     "#00ACC1",
-}
+        "Oppvarming":"#33C831","Tappevann":"#097E3E","Ventilasjon":"#74D680",
+        "Belysning":"#FFC107","El.spesifikk":"#2E7BB4","Kjøling":"#00ACC1"
+    }
 
-    # Visningsnavn (slik at etiketten i figuren blir tydelig)
-    display_name = {
-        "Oppvarming": "Oppvarming",
-        "Tappevann": "Tappevann",
-        "Ventilasjon": "Ventilasjon",
-        "Belysning": "Belysning",
-        "El.spesifikk": (
-            "El.spesifikk (inkl. belysning)" if kategori == "Forretningsbygning"
-            else ("El.spesifikk (inkl. ventilasjon og belysning)" if kategori == "Sykehus"
-                  else "El.spesifikk")
-    ),
-    "Kjøling": "Kjøling",
-}
+    # Visningsnavn (etiketter)
+    def disp(name: str) -> str:
+        if name == "El.spesifikk" and kategori == "Forretningsbygning":
+            return "El.spesifikk (inkl. belysning)"
+        if name == "El.spesifikk" and kategori == "Sykehus":
+            return "El.spesifikk (inkl. ventilasjon og belysning)"
+        return name
 
-# Filtrer ut 0-poster og bygg datasett i ønsket rekkefølge
-ordered = [(k, pct[k]) for k in FORMAL_ORDER if k in pct and pct[k] > 0]
-values = [arsforbruk * (v/100) for _, v in ordered]
-labels = [f"{display_name[k]}\n{fmt_int(val)} kWh" for k, val in zip([k for k,_ in ordered], values)]
-colors = [FORMAL_COLORS[k] for k,_ in ordered]
+    ordered = [(k, pct[k]) for k in FORMAL_ORDER if k in pct and pct[k] > 0]
+    values  = [arsforbruk * (v/100) for _, v in ordered]
+    labels  = [f"{disp(k)}\n{fmt_int(val)} kWh" for k, val in zip([k for k,_ in ordered], values)]
+    colors  = [FORMAL_COLORS[k] for k,_ in ordered]
 
-# Tegn sektordiagrammet i kontrollert størrelse
-fig, ax = plt.subplots(figsize=(5.2, 4.8))
-ax.pie(values, labels=labels, colors=colors,
-       autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
-ax.axis("equal")
+    fig, ax = plt.subplots(figsize=(5.2, 4.8))
+    ax.pie(values, labels=labels, colors=colors,
+           autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
+    ax.axis("equal")
 
-buf = io.BytesIO()
-fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
-buf.seek(0)
-st.image(buf, width=580)
+    buf_pie = io.BytesIO()
+    fig.savefig(buf_pie, format="png", bbox_inches="tight", dpi=160)
+    buf_pie.seek(0)
+    st.image(buf_pie, width=580)
 
-# Fotnote under figuren
-if note_text:
     st.markdown(
-        f"<div style='font-size:12px;color:#666;margin-top:6px;'>* {note_text}</div>",
-        unsafe_allow_html=True
-    )
-else:
-    st.markdown(
-        "<div style='font-size:12px;color:#666;margin-top:6px;'>* Kategorier følger NVE 2016:24.</div>",
+        f"<div style='font-size:12px;color:#666;margin-top:6px;'>* {note_text if note_text else 'Kategorier følger NVE 2016:24.'}</div>",
         unsafe_allow_html=True
     )
 
-    title("Energibruk pr. m² (referanse vs. bygg)")
-    cols = REF["labels"] + ["AKTUELT BYGG"]
-    vals = REF[kategori] + [sp]
+    # (Hvis søylediagrammet skal ligge under pie, legg det VIDERE her inne)
+    # title("Energibruk pr. m² (referanse vs. bygg)")
+    # ...
 
-    fig2, ax2 = plt.subplots(figsize=(4.2, 2.2))
-    colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]
-    bars = ax2.bar(cols, vals, color=colors, width=0.55)
-
-    ax2.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
-    ax2.set_ylim(0, max(vals) * 1.25)
-    ax2.spines["top"].set_visible(False)
-    ax2.spines["right"].set_visible(False)
-
-    for t in ax2.get_xticklabels():
-        t.set_rotation(20)
-        t.set_ha("right")
-
-    for b, v in zip(bars, vals):
-        ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
-                 ha="center", va="bottom", fontsize=8, color=PRIMARY)
-
-    bars[-1].set_linewidth(0)
-    bars[-1].set_alpha(0.95)
-
-    buf = io.BytesIO()
-    fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
-    buf.seek(0)
-    st.image(buf, width=480)
 
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

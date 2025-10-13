@@ -56,37 +56,43 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Nøytral grå sliderstil (matcher input-feltene) ---
+# --- Grå, nøytral slider (ingen rødt) ---
 st.markdown("""
 <style>
-/* Lys grå bakgrunn på hele slider-området */
+/* Bakgrunn på hele sliderområdet */
 div[data-baseweb="slider"] > div {
-    background-color: #e5e5e5 !important;
+    background-color: #e6e6e6 !important;
 }
 
-/* Den aktive delen (valgt område) */
+/* Aktiv (valgt) del av linjen */
 div[data-baseweb="slider"] > div > div > div {
-    background-color: #999999 !important;
+    background-color: #a0a0a0 !important;
 }
 
-/* Selve «knappen» (tommel) */
+/* Tommel (sirkel) */
 div[data-baseweb="slider"] div[role="slider"] {
-    background-color: #666666 !important;
-    border: 1px solid #555555 !important;
+    background-color: #5c5c5c !important;
+    border: 1px solid #4d4d4d !important;
 }
 
-/* Hovereffekt – litt mørkere grå */
+/* Hovereffekt på tommel */
 div[data-baseweb="slider"] div[role="slider"]:hover {
     background-color: #444444 !important;
 }
 
-/* Tallverdiene over sliderne */
+/* Tallverdien over slideren (rød → mørkgrå) */
 div[data-baseweb="slider"] span {
-    color: #444444 !important;
-    font-weight: 600;
+    color: #4d4d4d !important;
+    font-weight: 600 !important;
+}
+
+/* Deaktiver rød strek på hele komponenten */
+div[data-baseweb="slider"] [data-testid="stMarkdownContainer"] span {
+    color: #4d4d4d !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn

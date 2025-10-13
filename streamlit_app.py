@@ -232,7 +232,7 @@ with right:
     colors = [FORMAL_COLORS.get(k, "#999999") for k in ordered_pct.keys()]
 
     # tegn pie med kontrollert størrelse
-    fig, ax = plt.subplots(figsize=(4.8, 4.4))  # ikke for bred/høy
+    fig, ax = plt.subplots(figsize=(5.2, 4.8))  # ikke for bred/høy
     ax.pie(values, labels=labels, colors=colors,
            autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
     ax.axis("equal")

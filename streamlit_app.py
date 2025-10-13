@@ -210,63 +210,40 @@ with left:
 with right:
     st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:4px;'>Energiforbruk formålsfordelt</h3>", unsafe_allow_html=True)
 
-    FORMAL_ORDER = [
-        "Oppvarming", "Tappevann", "Ventilasjon",
-        "Belysning", "El.spesifikk (inkl. lys/vifter/kjølemaskiner)", "El.spesifikk",
-        "Kjøling", "Kjøling (fjernkjøling)"
-    ]
+    # klargjør data (din logikk som før)
+    pct = SHARES[kategori].copy()
+    # ev. spesialhåndtering for forretningsbygg/sykehus her ...
+
+    FORMAL_ORDER = ["Oppvarming","Tappevann","Ventilasjon","Belysning",
+                    "El.spesifikk (inkl. belysning)","El.spesifikk","Kjøling"]
     FORMAL_COLORS = {
         "Oppvarming":  "#33C831",
         "Tappevann":   "#097E3E",
         "Ventilasjon": "#74D680",
         "Belysning":   "#FFC107",
-        "El.spesifikk": "#2E7BB4",
-        # bruk samme blå for presiserte varianter:
-        "El.spesifikk (inkl. lys/vifter/kjølemaskiner)": "#2E7BB4",
+        "El.spesifikk":"#2E7BB4",
+        "El.spesifikk (inkl. belysning)":"#2E7BB4",
         "Kjøling":     "#00ACC1",
-        "Kjøling (fjernkjøling)": "#00ACC1",
     }
 
-    # Start med en kopi
-    pct = SHARES[kategori].copy()
-
-    # Forretningsbygg: el.spesifikk inkluderer lys i NVE – presiser etikett (som før)
-    if kategori == "Forretningsbygning" and pct.get("Belysning", 0) == 0 and "El.spesifikk" in pct:
-        pct["El.spesifikk (inkl. belysning)"] = pct.pop("El.spesifikk")
-
-    # Sykehus: presiser at el.spesifikk inkluderer lys/vifter/kjølemaskiner,
-    # og at "Kjøling" er fjernkjøling
-    if kategori == "Sykehus":
-        if "El.spesifikk" in pct:
-            pct["El.spesifikk (inkl. lys/vifter/kjølemaskiner)"] = pct.pop("El.spesifikk")
-        if "Kjøling" in pct:
-            pct["Kjøling (fjernkjøling)"] = pct.pop("Kjøling")
-
-    # Sortér og filtrér vekk 0-verdier
     ordered_pct = {k: pct[k] for k in FORMAL_ORDER if k in pct and pct[k] > 0}
+    values = [arsforbruk * (v/100) for v in ordered_pct.values()]
+    labels = [f"{k}\n{fmt_int(val)} kWh" for k, val in zip(ordered_pct.keys(), values)]
+    colors = [FORMAL_COLORS.get(k, "#999999") for k in ordered_pct.keys()]
 
-    if not ordered_pct:
-        st.info("Ingen formålsdata tilgjengelig for valgt kategori.")
-    else:
-        values = [arsforbruk * (v / 100) for v in ordered_pct.values()]
-        labels = [f"{k}\n{fmt_int(val)} kWh" for k, val in zip(ordered_pct.keys(), values)]
-        colors = [FORMAL_COLORS.get(k, "#999999") for k in ordered_pct.keys()]
+    # tegn pie med kontrollert størrelse
+    fig, ax = plt.subplots(figsize=(4.8, 4.4))  # ikke for bred/høy
+    ax.pie(values, labels=labels, colors=colors,
+           autopct=lambda p: f"{p:.1f}%", startangle=90, counterclock=False)
+    ax.axis("equal")
 
-        fig, ax = plt.subplots(figsize=(5.0, 4.4))
-        ax.pie(
-            values,
-            labels=labels,
-            colors=colors,
-            autopct=lambda p: f"{p:.1f}%",
-            startangle=90,
-            counterclock=False
-        )
-        ax.axis("equal")
-        import io
-buf = io.BytesIO()
-fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
-buf.seek(0)
-st.image(buf, width=480)  # ← juster mellom 420–480 for ønsket størrelse
+    # vis som bilde i fast bredde → holder seg i kolonnen
+    import io
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
+    buf.seek(0)
+    st.image(buf, width=440)   # juster 420–460 for å matche venstre figur
+
 
 
 with st.expander("Kilder og forutsetninger", expanded=False):

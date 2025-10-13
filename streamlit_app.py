@@ -5,6 +5,19 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import base64, pathlib
 
+# Fjern automatiske lenke-ikoner på overskrifter
+st.markdown("""
+<style>
+/* Skjul anker-ikonene som Streamlit legger til automatisk på h1–h6 */
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    text-decoration: none !important;
+    color: inherit !important;
+    pointer-events: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # --- Les logo som base64 (trygt for Streamlit Cloud) ---
 logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")
 logo_b64 = None

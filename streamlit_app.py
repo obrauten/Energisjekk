@@ -33,7 +33,7 @@ st.markdown(f"""
   <div class="ep-logo">
     {"<img src='data:image/png;base64," + logo_b64 + "' alt='EnergiPartner logo'/>" if logo_b64 else ""}
   </div>
-  <div class="ep-title">💡 Energisjekk</div>
+  <div class="ep-title">Energisjekk</div>
   <div class="ep-sub">Rask vurdering av energibruk og energikarakter</div>
 </div>
 """, unsafe_allow_html=True)

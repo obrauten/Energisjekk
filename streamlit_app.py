@@ -181,22 +181,56 @@ with left:
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-    title("Spesifikt årsforbruk")
+        title("Spesifikt årsforbruk")
     st.markdown(
         f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>",
         unsafe_allow_html=True
     )
 
+    # --- TEK17-referansetall pr kategori ---
+    TEK17_REF = {
+        "Barnehage": 120,
+        "Kontorbygning": 125,
+        "Skolebygning": 110,
+        "Universitets- og høgskolebygning": 120,
+        "Sykehus": 220,
+        "Sykehjem": 180,
+        "Hotellbygning": 150,
+        "Idrettsbygning": 130,
+        "Forretningsbygning": 140,
+        "Kulturbygning": 130,
+        "Lett industribygning, verksted": 150,
+        "Kombinasjon": 135,
+    }
+    ref_tek17 = TEK17_REF.get(kategori, 130)
+    diff = sp - ref_tek17
+    diff_pct = (diff / ref_tek17) * 100 if ref_tek17 else 0
+
+    # --- Vis tekst med referanse og differanse ---
+    farge = "#2e8b57" if diff <= 0 else ("#e6a700" if diff_pct < 25 else "#cc4444")
+    vurdering = (
+        "under TEK17-nivå – svært effektivt bygg" if diff <= 0 else
+        "omtrent på nivå med TEK17" if diff_pct < 25 else
+        "over TEK17-nivå – potensial for reduksjon"
+    )
+
     st.markdown(
-        "<div style='font-size:12.5px; color:#666; margin-top:2px;'>"
-        "Referanse: <b>TEK17</b> (minstekrav til energiforsyning). "
-        "TEK17 angir ikke direkte kWh/m²-krav – dette er en forenklet sjekk. "
-        "Kontakt oss for vurdering mot TEK17 for din kategori og byggets standard."
-        "</div>",
+        f"""
+        <div style='font-size:13px; color:#555; margin-top:2px;'>
+            Referansenivå TEK17: <b>{ref_tek17} kWh/m²</b><br>
+            <span style='color:{farge};'>{vurdering}</span>
+        </div>
+        <div style='font-size:11px; color:#777; margin-top:6px;'>
+            Kilde: <a href="https://www.dibk.no/regelverk/byggteknisk-forskrift-tek17/14/14-2"
+            target="_blank" style="color:#777; text-decoration:none;">
+            TEK17 § 14-2 – Krav til energieffektivitet (energirammer)</a>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
+
 
     title("Kalkulert energikarakter")
     st.markdown(

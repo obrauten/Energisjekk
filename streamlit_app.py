@@ -284,7 +284,7 @@ with right:
 
 # === FULL BREDD: Estimert energisparepotensial (Enova) =======================
 st.markdown(
-    f"<h3 style='color:{PRIMARY};margin:10px 0 6px 0;'>Estimert energisparepotensial (Enova)</h3>",
+    f"<h3 style='color:{PRIMARY};margin:10px 0 6px 0;'>Estimert energisparepotensial</h3>",
     unsafe_allow_html=True
 )
 

@@ -282,10 +282,7 @@ with right:
     st.image(buf_bar, width=480)
 
 # === ENKEL VISUAL: Donut (venstre) + punktliste (høyre) ======================
-st.markdown(
-    f"<div style='color:{PRIMARY}; font-size:18px; font-weight:600; margin:6px 0 12px 0;'>Estimert energisparepotensial</div>",
-    unsafe_allow_html=True
-)
+title("Estimert energisparepotensial")   # <- matcher andre overskrifter
 
 def corrected_pct_for(kat: str) -> dict:
     p = SHARES[kat].copy()
@@ -358,7 +355,6 @@ else:
 
     # ---------------- Høyre: PUNKTLISTE ----------------
     with right:
-        # Bruk f-string, IKKE %-formattering (pga % i CSS som 50%)
         item_css = f"""
         <style>
         .tiltak-list {{ list-style: none; padding: 0; margin: 0; }}
@@ -381,7 +377,11 @@ else:
             )
         html_items.append("</ul>")
         st.markdown("".join(html_items), unsafe_allow_html=True)
+
+# --- Ekstra luft mot 'Kilder og forutsetninger' ---
+st.markdown("<div style='margin-bottom:22px;'></div>", unsafe_allow_html=True)
 # =============================================================================
+
 
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

@@ -217,10 +217,10 @@ with left:
     diff = spes - ref_tek17 if ref_tek17 else 0
     diff_pct = (diff / ref_tek17) * 100 if ref_tek17 else 0
 
-    farge = "#2e8b57" if diff <= 0 else ("#e6a700" if diff_pct < 25 else "#cc4444")
+    farge = "#2e8b57" if diff <= 0 else ("#e6a700" if diff_pct < 10 else "#cc4444")
     vurdering = (
         "under TEK17-nivå – svært effektivt bygg" if diff <= 0 else
-        "omtrent på nivå med TEK17" if diff_pct < 15 else
+        "omtrent på nivå med TEK17" if diff_pct < 10 else
         "over TEK17-nivå – potensial for reduksjon"
     )
 

@@ -288,7 +288,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Korrigert formålsfordeling (samme logikk som i pie)
 def corrected_pct_for(kat: str) -> dict:
     p = SHARES[kat].copy()
     if kat == "Forretningsbygning":
@@ -302,7 +301,6 @@ def corrected_pct_for(kat: str) -> dict:
 
 pct_corr = corrected_pct_for(kategori)
 
-# Tiltak og intervaller
 MEASURE_DATA = {
     "Oppvarming og tappevann": {
         "keys": ["Oppvarming", "Tappevann"],
@@ -321,7 +319,6 @@ MEASURE_DATA = {
     },
 }
 
-# Beregn intervaller
 rows = []
 for data in MEASURE_DATA.values():
     share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
@@ -337,7 +334,7 @@ for data in MEASURE_DATA.values():
     })
 
 if rows:
-    # To kolonner i full bredde: graf (venstre) + donut (høyre)
+    # To kolonner i full bredde
     g_left, g_right = st.columns([2.2, 1])
 
     # ---------------- Venstre: range chart ----------------
@@ -348,13 +345,10 @@ if rows:
         mids   = [(lo + hi) / 2 for lo, hi in zip(lows, highs)]
         shares = [r["share_pct"] for r in rows]
 
-        # Kompakt høyde + venstre-justerte etiketter
-        fig_h = 1.2 + 0.30 * len(rows)
+        fig_h = 1.0 + 0.28 * len(rows)  # tettere vertikalt
         fig_rng, ax_rng = plt.subplots(figsize=(7.6, fig_h))
 
-        # Akse starter fra 0, så linjene “begynner” helt til venstre
         x_max = max(highs) if highs else 1
-        # litt luft til høyre for tallene
         x_max = x_max * (1.25 if x_max > 10_000 else 2.0)
         ax_rng.set_xlim(0, x_max)
 
@@ -373,9 +367,7 @@ if rows:
         )
         ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
         ax_rng.invert_yaxis()
-        # Strammere layout + venstremarg for lange etiketter
         plt.subplots_adjust(left=0.26, right=0.98, top=0.92, bottom=0.18)
-        # Ryddige akser
         ax_rng.spines["top"].set_visible(False)
         ax_rng.spines["right"].set_visible(False)
         ax_rng.spines["left"].set_visible(False)
@@ -384,7 +376,7 @@ if rows:
         buf_rng = io.BytesIO()
         fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=200)
         buf_rng.seek(0)
-        st.image(buf_rng, use_column_width=True)
+        st.image(buf_rng, use_container_width=True)  # <-- fikser advarselen
 
     # ---------------- Høyre: stor donut + tekst under ----------------
     with g_right:
@@ -394,7 +386,7 @@ if rows:
         pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
         pct_mid = (pct_lo + pct_hi) / 2
 
-        fig_d, ax_d = plt.subplots(figsize=(3.6, 3.6))  # STØRRE donut
+        fig_d, ax_d = plt.subplots(figsize=(3.8, 3.8))  # STØRRE donut
         remain = max(0, 100 - pct_mid)
         ax_d.pie(
             [pct_mid, remain],
@@ -412,16 +404,17 @@ if rows:
         buf_d = io.BytesIO()
         fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=220)
         buf_d.seek(0)
-        st.image(buf_d, use_column_width=True)
+        st.image(buf_d, use_container_width=True)  # <-- fikser advarselen
 
         st.markdown(
-            f"<div style='font-size:12px;color:#666;margin-top:6px;text-align:center;'>"
+            f"<div style='font-size:13px;color:#444;margin-top:2px;text-align:left;'>"
             f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
             f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
             f"</div>",
             unsafe_allow_html=True
         )
-# ============================================================================ 
+# ============================================================================
+
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):
     st.markdown("""

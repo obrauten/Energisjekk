@@ -38,10 +38,16 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# --- Fjern eller oversett "Press Enter to apply" ---
 st.markdown("""
-<style>
-span[data-testid="stNumberInputInstructions"] { display: none !important; }
-</style>
+<script>
+window.addEventListener('load', function() {
+  const applyHints = document.querySelectorAll('span[data-testid="stNumberInputInstructions"]');
+  applyHints.forEach(el => {
+    el.innerText = "Trykk Enter for å oppdatere";
+  });
+});
+</script>
 """, unsafe_allow_html=True)
 
 

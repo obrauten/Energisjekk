@@ -187,38 +187,6 @@ with left:
         unsafe_allow_html=True
     )
 
-    # Overskrift + søylediagram (kompakt)
-    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Energibruk pr. m² (referanse vs. bygg)</h3>", unsafe_allow_html=True)
-
-    cols = REF["labels"] + ["AKTUELT BYGG"]
-    vals = REF[kategori] + [sp]
-
-    fig2, ax2 = plt.subplots(figsize=(4.2, 2.2))
-    colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]
-    bars = ax2.bar(cols, vals, color=colors, width=0.55)
-
-    ax2.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
-    ax2.set_ylim(0, max(vals) * 1.25)
-    ax2.spines["top"].set_visible(False)
-    ax2.spines["right"].set_visible(False)
-
-    for t in ax2.get_xticklabels():
-        t.set_rotation(20)
-        t.set_ha("right")
-
-    for b, v in zip(bars, vals):
-        ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
-                 ha="center", va="bottom", fontsize=8, color=PRIMARY)
-
-    # Uten kantlinje rundt "AKTUELT BYGG"
-    bars[-1].set_linewidth(0)
-    bars[-1].set_alpha(0.95)
-
-    # Vises i fast bredde slik at den ikke blåses opp
-    buf = io.BytesIO()
-    fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
-    buf.seek(0)
-    st.image(buf, width=480)  # juster 380–460 ved behov
 
 # ========== HØYRE ==========
 with right:
@@ -258,7 +226,38 @@ with right:
     buf.seek(0)
     st.image(buf, width=580)   # juster 420–460 for å matche venstre figur
 
+# Overskrift + søylediagram (kompakt)
+    st.markdown(f"<h3 style='color:{PRIMARY};margin-bottom:6px;'>Energibruk pr. m² (referanse vs. bygg)</h3>", unsafe_allow_html=True)
 
+    cols = REF["labels"] + ["AKTUELT BYGG"]
+    vals = REF[kategori] + [sp]
+
+    fig2, ax2 = plt.subplots(figsize=(4.2, 2.2))
+    colors = [BAR_LIGHT] * (len(vals) - 1) + [BAR_DARK]
+    bars = ax2.bar(cols, vals, color=colors, width=0.55)
+
+    ax2.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
+    ax2.set_ylim(0, max(vals) * 1.25)
+    ax2.spines["top"].set_visible(False)
+    ax2.spines["right"].set_visible(False)
+
+    for t in ax2.get_xticklabels():
+        t.set_rotation(20)
+        t.set_ha("right")
+
+    for b, v in zip(bars, vals):
+        ax2.text(b.get_x() + b.get_width()/2, v + 3, f"{v:.1f}",
+                 ha="center", va="bottom", fontsize=8, color=PRIMARY)
+
+    # Uten kantlinje rundt "AKTUELT BYGG"
+    bars[-1].set_linewidth(0)
+    bars[-1].set_alpha(0.95)
+
+    # Vises i fast bredde slik at den ikke blåses opp
+    buf = io.BytesIO()
+    fig2.savefig(buf, format="png", bbox_inches="tight", dpi=200)
+    buf.seek(0)
+    st.image(buf, width=480)  # juster 380–460 ved behov
 
 with st.expander("Kilder og forutsetninger", expanded=False):
     st.markdown("""

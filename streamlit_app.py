@@ -56,44 +56,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Grå, nøytral slider (ingen rødt) ---
-st.markdown("""
-<style>
-/* Bakgrunn på hele sliderområdet */
-div[data-baseweb="slider"] > div {
-    background-color: #e6e6e6 !important;
-}
-
-/* Aktiv (valgt) del av linjen */
-div[data-baseweb="slider"] > div > div > div {
-    background-color: #a0a0a0 !important;
-}
-
-/* Tommel (sirkel) */
-div[data-baseweb="slider"] div[role="slider"] {
-    background-color: #5c5c5c !important;
-    border: 1px solid #4d4d4d !important;
-}
-
-/* Hovereffekt på tommel */
-div[data-baseweb="slider"] div[role="slider"]:hover {
-    background-color: #444444 !important;
-}
-
-/* Tallverdien over slideren (rød → mørkgrå) */
-div[data-baseweb="slider"] span {
-    color: #4d4d4d !important;
-    font-weight: 600 !important;
-}
-
-/* Deaktiver rød strek på hele komponenten */
-div[data-baseweb="slider"] [data-testid="stMarkdownContainer"] span {
-    color: #4d4d4d !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
 # --- Farger / profil ---
 PRIMARY   = "#097E3E"   # mørk grønn
 SECONDARY = "#33C831"   # lys grønn
@@ -120,39 +82,35 @@ def parse_int_with_spaces(text: str, default=0):
     except ValueError:
         return default
 
-# ---- Inputs (sliders) ----
+# ---------------- Inputs ----------------
+CATEGORIES = [
+    "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
+    "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
+    "Forretningsbygning","Kulturbygning","Lett industribygning, verksted","Kombinasjon",
+]
+
 c1, c2, c3 = st.columns([1.2, 1, 1])
 
 with c1:
-    kategori = st.selectbox(
-        "Bygningskategori",
-        [
-            "Barnehage","Kontorbygning","Skolebygning","Universitets- og høgskolebygning",
-            "Sykehus","Sykehjem","Hotellbygning","Idrettsbygning",
-            "Forretningsbygning","Kulturbygning","Lett industribygning, verksted","Kombinasjon",
-        ],
-        index=1
-    )
+    kategori = st.selectbox("Bygningskategori", CATEGORIES, index=1)
 
 with c2:
-    arsforbruk = st.slider(
+    arsforbruk = st.number_input(
         "Årsforbruk (kWh)",
         min_value=0,
-        max_value=2_000_000,   # juster taket hvis du vil
         value=500_000,
-        step=1_000,            # ±1000 på tasten/drag
+        step=1_000,      # ±1000
+        format="%i",
     )
-    st.caption(f"{fmt_int(arsforbruk)} kWh")
 
 with c3:
-    areal = st.slider(
+    areal = st.number_input(
         "Oppvarmet areal (m² BRA)",
-        min_value=50,
-        max_value=50_000,      # juster taket hvis du vil
+        min_value=1,
         value=3_000,
-        step=100,              # ±100
+        step=100,        # ±100
+        format="%i",
     )
-    st.caption(f"{fmt_int(areal)} m² BRA")
 
 sp = arsforbruk / areal
 

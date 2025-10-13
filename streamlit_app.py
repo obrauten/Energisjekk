@@ -290,39 +290,25 @@ st.markdown(
 def corrected_pct_for(kat: str) -> dict:
     p = SHARES[kat].copy()
     if kat == "Forretningsbygning":
-        p["El.spesifikk"] += p.get("Belysning", 0)
-        p["Belysning"] = 0
+        p["El.spesifikk"] += p.get("Belysning", 0); p["Belysning"] = 0
     elif kat == "Sykehus":
         p["El.spesifikk"] += p.get("Ventilasjon", 0) + p.get("Belysning", 0)
-        p["Ventilasjon"] = 0
-        p["Belysning"] = 0
+        p["Ventilasjon"] = 0; p["Belysning"] = 0
     return p
 
 pct_corr = corrected_pct_for(kategori)
 
 MEASURE_DATA = {
-    "Oppvarming og tappevann": {
-        "keys": ["Oppvarming", "Tappevann"],
-        "reduction_pct": (10, 50),
-        "label": "Varmepumpe / varmegjenvinning",
-    },
-    "Ventilasjon": {
-        "keys": ["Ventilasjon"],
-        "reduction_pct": (10, 30),
-        "label": "Behovsstyrt ventilasjon (VAV)",
-    },
-    "Belysning": {
-        "keys": ["Belysning"],
-        "reduction_pct": (40, 60),
-        "label": "LED-belysning og styring",
-    },
+    "Oppvarming og tappevann": {"keys": ["Oppvarming", "Tappevann"], "reduction_pct": (10, 50), "label": "Varmepumpe / varmegjenvinning"},
+    "Ventilasjon":              {"keys": ["Ventilasjon"],            "reduction_pct": (10, 30), "label": "Behovsstyrt ventilasjon (VAV)"},
+    "Belysning":                {"keys": ["Belysning"],              "reduction_pct": (40, 60), "label": "LED-belysning og styring"},
 }
 
-# ---------------- Beregn tiltak og total ----------------
+# --- Beregn tiltak og total ---
 rows = []
 for data in MEASURE_DATA.values():
     share_pct = sum(pct_corr.get(k, 0) for k in data["keys"])
-    if share_pct <= 0:
+    if share_pct <= 0: 
         continue
     basis = arsforbruk * (share_pct / 100)
     lo, hi = data["reduction_pct"]
@@ -336,7 +322,6 @@ for data in MEASURE_DATA.values():
 if not rows:
     st.info("Ingen relevante tiltak for valgt kategori.")
 else:
-    # Sortér tiltak etter høyest midtverdi (mest effekt øverst)
     rows.sort(key=lambda r: (r["kwh_lo"] + r["kwh_hi"]) / 2, reverse=True)
 
     tot_lo = sum(r["kwh_lo"] for r in rows)
@@ -344,7 +329,7 @@ else:
     pct_lo = 100 * tot_lo / arsforbruk if arsforbruk else 0
     pct_hi = 100 * tot_hi / arsforbruk if arsforbruk else 0
     pct_mid = (pct_lo + pct_hi) / 2
-    remain = max(0, 100 - pct_mid)
+    remain  = max(0, 100 - pct_mid)
 
     # =============== Layout: Venstre (donut) / Høyre (punktliste) ===========
     left, right = st.columns([1.05, 1.25], gap="large")
@@ -352,23 +337,16 @@ else:
     # ---------------- Venstre: DONUT ----------------
     with left:
         fig_d, ax_d = plt.subplots(figsize=(4.8, 4.8))
-        ax_d.pie(
-            [pct_mid, remain],
-            startangle=90,
-            counterclock=False,
-            colors=[SECONDARY, "#e8e8e8"],
-            wedgeprops=dict(width=0.44)
-        )
+        ax_d.pie([pct_mid, remain], startangle=90, counterclock=False,
+                 colors=[SECONDARY, "#e8e8e8"], wedgeprops=dict(width=0.44))
         ax_d.axis("equal")
         ax_d.text(0, 0.06, f"{pct_mid:.1f}%", ha="center", va="center",
                   fontsize=26, color=PRIMARY, fontweight="bold")
         ax_d.text(0, -0.38, "samlet potensial", ha="center", va="center",
                   fontsize=11, color="#666")
 
-        buf_d = io.BytesIO()
-        fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=240)
-        buf_d.seek(0)
-        st.image(buf_d, use_container_width=True)
+        buf_d = io.BytesIO(); fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=240)
+        buf_d.seek(0); st.image(buf_d, use_container_width=True)
 
         st.markdown(
             f"<div style='font-size:13px; color:#444; text-align:left; margin-top:6px;'>"
@@ -380,41 +358,30 @@ else:
 
     # ---------------- Høyre: PUNKTLISTE ----------------
     with right:
-        # Konsistent linjehøyde for å «speile» donut-høyden visuelt
-        item_css = """
+        # Bruk f-string, IKKE %-formattering (pga % i CSS som 50%)
+        item_css = f"""
         <style>
-        .tiltak-list { 
-            list-style: none; padding: 0; margin: 0;
-        }
-        .tiltak-item {
-            display: flex; gap: 10px; align-items: baseline;
-            line-height: 1.4; margin: 8px 0;
-        }
-        .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: %s; margin-top: 6px; flex: 0 0 8px;
-        }
-        .ti-title { font-weight: 600; color: %s; font-size: 15px; }
-        .ti-sub   { color: #555; font-size: 13px; }
+        .tiltak-list {{ list-style: none; padding: 0; margin: 0; }}
+        .tiltak-item {{ display: flex; gap: 10px; align-items: baseline; line-height: 1.4; margin: 8px 0; }}
+        .dot {{ width: 8px; height: 8px; border-radius: 50%; background: {SECONDARY}; margin-top: 6px; flex: 0 0 8px; }}
+        .ti-title {{ font-weight: 600; color: {PRIMARY}; font-size: 15px; }}
+        .ti-sub {{ color: #555; font-size: 13px; }}
         </style>
-        """ % (SECONDARY, PRIMARY)
+        """
         st.markdown(item_css, unsafe_allow_html=True)
 
         html_items = ["<ul class='tiltak-list'>"]
         for r in rows:
-            title = f"{r['label']}"
-            sub = f"{r['share_pct']:.0f} % av bygget · {fmt_int(r['kwh_lo'])}–{fmt_int(r['kwh_hi'])} kWh/år"
+            title = r['label']
+            sub   = f"{r['share_pct']:.0f} % av bygget · {fmt_int(r['kwh_lo'])}–{fmt_int(r['kwh_hi'])} kWh/år"
             html_items.append(
                 f"<li class='tiltak-item'><span class='dot'></span>"
                 f"<div><div class='ti-title'>{title}</div>"
                 f"<div class='ti-sub'>{sub}</div></div></li>"
             )
         html_items.append("</ul>")
-
         st.markdown("".join(html_items), unsafe_allow_html=True)
-
 # =============================================================================
-
 
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

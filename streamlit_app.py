@@ -250,7 +250,7 @@ with right:
     st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
 
     # ---------- BAR: referanse vs. bygg ----------
-    title("Energibruk pr. m² (referanse vs. bygg)")
+    title("Energibruk pr. m² BRA (referanse vs. bygg)")
 
     cols = REF["labels"] + ["AKTUELT BYGG"]
     vals = REF[kategori] + [sp]
@@ -259,7 +259,7 @@ with right:
     bar_colors = [BAR_LIGHT] * (len(vals)-1) + [BAR_DARK]
     bars = ax_bar.bar(cols, vals, color=bar_colors, width=0.55)
 
-    ax_bar.set_ylabel("kWh/m²", fontsize=10, color=PRIMARY, labelpad=4)
+    ax_bar.set_ylabel("kWh/m² BRA", fontsize=10, color=PRIMARY, labelpad=4)
     ax_bar.set_ylim(0, max(vals)*1.25)
     ax_bar.spines["top"].set_visible(False)
     ax_bar.spines["right"].set_visible(False)

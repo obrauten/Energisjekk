@@ -264,4 +264,9 @@ with right:
         ax.axis("equal")
         st.pyplot(fig, use_container_width=True)
 
-
+with st.expander("Kilder og forutsetninger", expanded=False):
+    st.markdown("""
+    - **Formålsdeling:** NVE Rapport 2016:24  
+    - **Referanseverdier pr m² / tiltak:** Enova (veiledere og kunnskapsartikler)  
+    - **Energikarakter:** Enova – Karakterskalaen  
+    """)

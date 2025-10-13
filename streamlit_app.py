@@ -118,6 +118,20 @@ with c3:
 
 sp = arsforbruk / areal
 
+# --- Formålsfordeling ---
+pct = SHARES[kategori].copy()
+
+# --- Korreksjoner for spesielle byggtyper ---
+# Forretningsbygg: Belysning inkludert i el.spesifikk
+if kategori == "Forretningsbygning":
+    pct["El.spesifikk"] += pct["Belysning"]
+    pct["Belysning"] = 0
+
+# Sykehus: Ventilasjon og belysning inkludert i el.spesifikk
+if kategori == "Sykehus":
+    pct["El.spesifikk"] += pct["Ventilasjon"] + pct["Belysning"]
+    pct["Ventilasjon"] = 0
+    pct["Belysning"] = 0
 
 # ---------- FORMÅLSFORDELING ----------
 SHARES = {

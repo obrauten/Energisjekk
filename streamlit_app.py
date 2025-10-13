@@ -341,9 +341,8 @@ if rows:
     shares = [r["share_pct"] for r in rows]
 
     # ================== ØVERST: RANGE-CHART I FULL BREDDE ==================
-    # Stor, lettlest skrift og venstrejusterte etiketter
-    fig_h = 1.2 + 0.34 * len(rows)   # litt mer plass per tiltak
-    fig_rng, ax_rng = plt.subplots(figsize=(9.6, fig_h))  # bredde ~full container
+    fig_h = 1.25 + 0.36 * len(rows)   # litt mer plass per tiltak
+    fig_rng, ax_rng = plt.subplots(figsize=(10.5, fig_h))
 
     x_max = max(highs) if highs else 1
     x_max = x_max * (1.25 if x_max > 10_000 else 2.0)
@@ -351,13 +350,13 @@ if rows:
 
     for i, (lo, hi, mid) in enumerate(zip(lows, highs, mids)):
         ax_rng.hlines(y=i, xmin=lo, xmax=hi, colors=PRIMARY, linewidth=6, alpha=0.35)
-        ax_rng.scatter([lo, hi], [i, i], s=36, color=PRIMARY, zorder=3)
-        ax_rng.scatter([mid], [i], s=90, color=SECONDARY, zorder=4)
+        ax_rng.scatter([lo, hi], [i, i], s=40, color=PRIMARY, zorder=3)
+        ax_rng.scatter([mid], [i], s=95, color=SECONDARY, zorder=4)
         ax_rng.text(hi + x_max*0.012, i,
                     f"{fmt_int(lo)} – {fmt_int(hi)} kWh/år",
                     va="center", fontsize=12, color=PRIMARY)
 
-    # Venstrejusterte kategoritekster (vi tegner dem selv)
+    # Venstrejusterte kategoritekster
     ax_rng.set_yticks([])
     x0, x1 = ax_rng.get_xlim()
     xpad = x0 + (x1 - x0) * 0.003
@@ -365,20 +364,21 @@ if rows:
     for i, txt in enumerate(labels):
         ax_rng.text(xpad, i, txt, ha="left", va="center", fontsize=13, color=PRIMARY)
 
-    # Venstrejustert x-aksenavn
-    ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=2)
-    ax_rng.xaxis.set_label_coords(0.0, -0.06)
+    # Unngå overlapp: ekstra pad og større bunnmargin
+    ax_rng.set_xlabel("kWh/år", fontsize=12, color=PRIMARY, labelpad=10)
+    ax_rng.tick_params(axis="x", pad=6)
+    ax_rng.xaxis.set_label_coords(0.0, -0.08)
     ax_rng.xaxis.label.set_horizontalalignment("left")
 
     ax_rng.invert_yaxis()
-    plt.subplots_adjust(left=0.06, right=0.98, top=0.95, bottom=0.2)
+    plt.subplots_adjust(left=0.06, right=0.985, top=0.96, bottom=0.28)  # større bottom
     ax_rng.spines["top"].set_visible(False)
     ax_rng.spines["right"].set_visible(False)
     ax_rng.spines["left"].set_visible(False)
-    ax_rng.grid(axis="x", linewidth=0.4, alpha=0.25)
+    ax_rng.grid(axis="x", linewidth=0.45, alpha=0.25)
 
     buf_rng = io.BytesIO()
-    fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=220)
+    fig_rng.savefig(buf_rng, format="png", bbox_inches="tight", dpi=230)
     buf_rng.seek(0)
     st.image(buf_rng, use_container_width=True)
 
@@ -390,37 +390,35 @@ if rows:
     pct_mid = (pct_lo + pct_hi) / 2
     remain = max(0, 100 - pct_mid)
 
-    fig_d, ax_d = plt.subplots(figsize=(4.6, 4.6))  # litt større donut
+    # Bedre skalering: større canvas + tykkere ring
+    fig_d, ax_d = plt.subplots(figsize=(6.0, 6.0))
     ax_d.pie(
         [pct_mid, remain],
         startangle=90,
         counterclock=False,
         colors=[SECONDARY, "#e5e5e5"],
-        wedgeprops=dict(width=0.40)
+        wedgeprops=dict(width=0.42)  # litt tykkere ring
     )
     ax_d.axis("equal")
-    ax_d.text(0, 0.05, f"{pct_mid:.1f}%", ha="center", va="center",
-              fontsize=22, color=PRIMARY, fontweight="bold")
-    ax_d.text(0, -0.36, "samlet potensial", ha="center", va="center",
-              fontsize=11, color="#666")
+    ax_d.text(0, 0.06, f"{pct_mid:.1f}%", ha="center", va="center",
+              fontsize=26, color=PRIMARY, fontweight="bold")
+    ax_d.text(0, -0.38, "samlet potensial", ha="center", va="center",
+              fontsize=12, color="#666")
 
+    # Litt strammere «tight» så den fyller bredden penere
     buf_d = io.BytesIO()
     fig_d.savefig(buf_d, format="png", bbox_inches="tight", dpi=240)
     buf_d.seek(0)
     st.image(buf_d, use_container_width=True)
 
-    # Venstrejustert tekst under donut
     st.markdown(
-        f"<div style='font-size:13px;color:#444;margin-top:4px;text-align:left;'>"
+        f"<div style='font-size:13px;color:#444;margin-top:6px;text-align:left;'>"
         f"Estimert samlet potensial: <b>{fmt_int(tot_lo)}</b> – <b>{fmt_int(tot_hi)}</b> kWh/år "
         f"(<b>{pct_lo:.1f}–{pct_hi:.1f} %</b> av totalt forbruk)."
         f"</div>",
         unsafe_allow_html=True
     )
 # ============================================================================
-
-
-
 
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

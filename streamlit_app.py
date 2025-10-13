@@ -177,27 +177,25 @@ badge_color = BADGE_COLORS[label]
 left, right = st.columns([1, 1.5])
 
 with left:
-   title("Spesifikt årsforbruk")
-st.markdown(
-    f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>",
-    unsafe_allow_html=True
-)
-
-# TEK17: liten, nøktern referanse-linje under tallet
-st.markdown(
-    "<div style='font-size:12.5px; color:#666; margin-top:2px;'>"
-    "Referanse: <b>TEK17</b> (minstekrav til energiforsyning). "
-    "TEK17 angir ikke direkte kWh/m²-krav – dette er en forenklet sjekk. "
-    "Kontakt oss for vurdering mot TEK17 for din kategori og byggets standard."
-    "</div>",
-    unsafe_allow_html=True
-)
-
-st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
-
+    title("Årsforbruk")
+    st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
     title("Spesifikt årsforbruk")
-    st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{sp:.0f} kWh/m² BRA</div>",
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        "<div style='font-size:12.5px; color:#666; margin-top:2px;'>"
+        "Referanse: <b>TEK17</b> (minstekrav til energiforsyning). "
+        "TEK17 angir ikke direkte kWh/m²-krav – dette er en forenklet sjekk. "
+        "Kontakt oss for vurdering mot TEK17 for din kategori og byggets standard."
+        "</div>",
+        unsafe_allow_html=True
+    )
+
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
     title("Kalkulert energikarakter")

@@ -256,7 +256,7 @@ with right:
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight", dpi=160)
     buf.seek(0)
-    st.image(buf, width=480)   # juster 420–460 for å matche venstre figur
+    st.image(buf, width=580)   # juster 420–460 for å matche venstre figur
 
 
 

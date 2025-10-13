@@ -252,8 +252,7 @@ with left:
     st.markdown(
     """
     <div style='font-size:12.5px;color:#666;margin-top:4px;'>
-        Energikarakteren er <b>indikativ</b> og beregnet ut fra faktisk forbruk per m² oppvarmet BRA.  
-        Offisiell energimerking beregnes etter <a href="https://www.standard.no/no/Nettbutikk/produktkatalogen/Produktpresentasjon/?ProductID=1031408" target="_blank" style="color:#666;text-decoration:none;">NS 3031</a> og kan avvike.
+       Denne bokstaven er en forenklet vurdering basert på faktisk forbruk. Den offisielle energikarakteren beregnes etter NS 3031 og kan avvike.
     </div>
     """,
     unsafe_allow_html=True

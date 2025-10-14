@@ -5,6 +5,8 @@ import pathlib
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
+import streamlit as st
+st.set_page_config(page_title="Energisjekk", page_icon="🔎", layout="wide")
 
 # ---------- LAST LOGO ----------
 logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")

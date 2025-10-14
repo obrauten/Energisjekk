@@ -1,2 +1,12 @@
 [theme]
 base = "light"
+
+[server]
+enableCORS = false
+
+[browser]
+gatherUsageStats = false
+
+[ui]
+hide_streamlit_logo = true
+hideToolbar = true

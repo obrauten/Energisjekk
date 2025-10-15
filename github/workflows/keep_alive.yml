@@ -1,0 +1,15 @@
+name: Keep Streamlit app alive
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # kjør hver 6. time
+  workflow_dispatch:        # gjør at du kan starte manuelt
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Streamlit app
+        run: |
+          echo "Pinger Streamlit-appen..."
+          curl -I https://energisjekk.streamlit.app || true

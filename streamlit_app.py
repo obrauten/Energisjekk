@@ -8,12 +8,6 @@ import pandas as pd
 import streamlit as st
 st.set_page_config(page_title="Energisjekk", page_icon="🔎", layout="wide")
 
-# ---------- LAST LOGO ----------
-logo_path = pathlib.Path("EnergiPartner_RGB-300x140.png")
-logo_b64 = None
-if logo_path.exists():
-    logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
-
 # ---------- LOGO OG TOPP (uten lenker på tittel) ----------
 st.markdown(f"""
 <style>

@@ -270,8 +270,8 @@ with left:
         """,
         unsafe_allow_html=True
     )
-
-st.markdown(
+  
+    st.markdown(
     """
     <div style='font-size:11.5px; color:#777; margin-top:2px;'>
         *Merk: TEK17 angir <b>netto energibehov</b>, mens tallet her viser <b>levert energi</b>. 

@@ -339,10 +339,23 @@ with left:
         )
 
     st.markdown(
-        f"<div style='font-size:12.5px;color:#555;margin-top:4px;'>{improve_text}</div>",
+        f"""
+        <div style='margin-top:14px; padding:10px 14px; border-radius:10px;
+                    background:#F4FBF6; border-left:4px solid {PRIMARY};'>
+
+          <div style='font-size:13px; font-weight:700; color:{PRIMARY};
+                      margin-bottom:4px;'>
+            Forbedringsbehov til neste karakter
+          </div>
+
+          <div style='font-size:13px; color:#222; line-height:1.4;'>
+            {improve_text}
+          </div>
+
+        </div>
+        """,
         unsafe_allow_html=True
     )
-
 # ---------- HØYRE: formålsfordelt forbruk ----------
 with right:
     # ---------- PIE: formålsfordelt forbruk ----------

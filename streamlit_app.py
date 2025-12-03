@@ -457,9 +457,13 @@ with right:
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):
     st.markdown("""
-    - **Formålsdeling:** NVE Rapport 2016:24  
-    - **Referanseverdier pr m² / tiltak:** Enova (veiledere og kunnskapsartikler)  
-    - **Energikarakter:** Enova – Karakterskalaen  
+    - **Levert energi:** Kalkulatoren bruker faktisk målt levert energi (kWh/m² BRA).
+    - **TEK17-referanse:** TEK17 viser netto energibehov (energirammer). 
+    Netto og levert energi er ikke direkte sammenlignbare.
+    - **Energikarakter:** Basert på Enovas gamle og nye karakterskala (2026). 
+    Beregningen er forenklet og bruker levert energi, ikke normerte NS 3031-verdier.
+    - **Formålsdeling:** NVE Rapport 2016:24 (kategori-gjennomsnitt).
+    - **Referansehistorikk:** NVE/Enova referansetall for ulike byggeperioder. 
     """)
 
 

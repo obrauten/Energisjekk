@@ -186,6 +186,25 @@ new_label = energy_label(sp, NEW_THRESH.get(kategori, NEW_THRESH["Kombinasjon"])
 order = ["A","B","C","D","E","F","G"]
 delta = order.index(new_label) - order.index(old_label)
 
+def improvement_to_better_grade(sp, kategori, thresholds, current_label, areal):
+    # A er best mulig – da finnes det ingen bedre karakter
+    if current_label == "A":
+        return None, None, None, None
+
+    idx = order.index(current_label)
+    better_label = order[idx - 1]          # én bedre karakter (for eksempel C -> B)
+    limit = thresholds[kategori][better_label]
+
+    needed_kwh_m2 = max(0.0, sp - limit)
+    needed_pct = (needed_kwh_m2 / sp * 100) if sp > 0 else 0.0
+    needed_kwh_tot = needed_kwh_m2 * areal
+
+    return better_label, needed_kwh_m2, needed_pct, needed_kwh_tot
+
+better_label, dk_m2, dk_pct, dk_tot = improvement_to_better_grade(
+    sp, kategori, NEW_THRESH, new_label, areal
+)
+
 # ---------- LAYOUT ----------
 left, right = st.columns([1, 1.5])
 with left:
@@ -304,6 +323,23 @@ with left:
             Offisiell energiattest beregnes etter NS 3031 i energimerkingsløsningen.
         </div>
         """,
+        unsafe_allow_html=True
+    )
+
+ # Hvor mye må energibruken ned for å nå neste karakter (ny ordning)?
+    if better_label is None:
+        improve_text = "Bygget har allerede beste mulige karakter (A) i ny ordning."
+    elif dk_m2 <= 0:
+        improve_text = f"Bygget ligger allerede innenfor grensen for {better_label}."
+    else:
+        improve_text = (
+            f"For å gå fra <b>{new_label}</b> til <b>{better_label}</b> må levert energi "
+            f"reduseres med minst <b>{dk_m2:.1f} kWh/m²</b> "
+            f"(ca. <b>{dk_pct:.0f} %</b>, tilsvarende ca. <b>{fmt_int(dk_tot)}</b> kWh/år)."
+        )
+
+    st.markdown(
+        f"<div style='font-size:12.5px;color:#555;margin-top:4px;'>{improve_text}</div>",
         unsafe_allow_html=True
     )
 

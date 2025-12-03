@@ -208,7 +208,7 @@ better_label, dk_m2, dk_pct, dk_tot = improvement_to_better_grade(
 # ---------- LAYOUT ----------
 left, right = st.columns([1, 1.5])
 with left:
-    title("Årsforbruk")
+    title("Årsforbruk(faktisk levert energi)")
     st.markdown(f"<div style='font-size:42px;color:{SECONDARY};font-weight:700'>{fmt_int(arsforbruk)} kWh</div>", unsafe_allow_html=True)
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 

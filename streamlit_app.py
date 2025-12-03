@@ -185,9 +185,6 @@ new_label = energy_label(sp, NEW_THRESH.get(kategori, NEW_THRESH["Kombinasjon"])
 
 order = ["A","B","C","D","E","F","G"]
 delta = order.index(new_label) - order.index(old_label)
-old_label = karakter etter gammel ordning
-new_label = karakter etter ny ordning
-delta = hvor mange trinn den flytter seg (positiv = dårligere)
 
 # ---------- LAYOUT ----------
 left, right = st.columns([1, 1.5])

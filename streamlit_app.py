@@ -146,7 +146,9 @@ REF = {
 
 
 # ---------- ENERGIKARAKTER ----------
-THRESH = {
+
+# Gammel ordning (dagens skala)
+OLD_THRESH = {
     "Barnehage":dict(A=85,B=115,C=145,D=180,E=220,F=275),
     "Kontorbygning":dict(A=90,B=115,C=145,D=180,E=220,F=275),
     "Skolebygning":dict(A=75,B=105,C=135,D=175,E=220,F=280),
@@ -161,9 +163,31 @@ THRESH = {
     "Kombinasjon":dict(A=95,B=135,C=175,D=215,E=255,F=320),
 }
 
-label = energy_label(sp, THRESH.get(kategori, THRESH["Kombinasjon"]))
-badge_color = BADGE_COLORS[label]
+# Ny ordning (justert skala)
+NEW_THRESH = {
+    "Barnehage":dict(A=105,B=120,C=180,D=240,E=300,F=360),
+    "Kontorbygning":dict(A=75,B=90,C=140,D=190,E=235,F=285),
+    "Skolebygning":dict(A=70,B=85,C=150,D=210,E=275,F=340),
+    "Universitets- og høgskolebygning":dict(A=75,B=90,C=140,D=190,E=245,F=295),
+    "Sykehus":dict(A=125,B=145,C=220,D=300,E=375,F=455),
+    "Sykehjem":dict(A=95,B=115,C=190,D=265,E=340,F=415),
+    "Hotellbygning":dict(A=100,B=115,C=195,D=275,E=355,F=435),
+    "Idrettsbygning":dict(A=85,B=100,C=170,D=235,E=305,F=375),
+    "Forretningsbygning":dict(A=110,B=130,C=200,D=265,E=330,F=395),
+    "Kulturbygning":dict(A=80,B=95,C=165,D=230,E=300,F=370),
+    "Lett industribygning, verksted":dict(A=95,B=110,C=190,D=270,E=345,F=425),
+    # for kombinasjon bruker vi samme som kulturbygg
+    "Kombinasjon":dict(A=80,B=95,C=165,D=230,E=300,F=370),
+}
 
+old_label = energy_label(sp, OLD_THRESH.get(kategori, OLD_THRESH["Kombinasjon"]))
+new_label = energy_label(sp, NEW_THRESH.get(kategori, NEW_THRESH["Kombinasjon"]))
+
+order = ["A","B","C","D","E","F","G"]
+delta = order.index(new_label) - order.index(old_label)
+old_label = karakter etter gammel ordning
+new_label = karakter etter ny ordning
+delta = hvor mange trinn den flytter seg (positiv = dårligere)
 
 # ---------- LAYOUT ----------
 left, right = st.columns([1, 1.5])
@@ -233,23 +257,58 @@ with left:
 
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
-    title("Kalkulert energikarakter")
-    st.markdown(
-    f"<div style='display:inline-block;padding:.8rem 1.4rem;border-radius:1rem;"
-    f"background:{badge_color};color:white;font-weight:900;font-size:40px;'>"
-    f"{label}</div>",
-    unsafe_allow_html=True
-)
+    title("Kalkulert energikarakter – gammel vs. ny ordning")
 
     st.markdown(
-    """
-    <div style='font-size:12.5px;color:#666;margin-top:4px;'>
-       Denne bokstaven er en forenklet vurdering basert på faktisk forbruk. Den offisielle energikarakteren beregnes etter NS 3031 og kan avvike.
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        f"""
+        <div style='display:flex; gap:18px; align-items:flex-end; flex-wrap:wrap;'>
 
+          <div>
+            <div style='font-size:11px;color:#666;margin-bottom:2px;'>Gammel ordning</div>
+            <div style='display:inline-block;padding:.6rem 1.2rem;border-radius:999px;
+                        background:{BADGE_COLORS[old_label]};color:white;
+                        font-weight:900;font-size:34px;'>
+              {old_label}
+            </div>
+          </div>
+
+          <div>
+            <div style='font-size:11px;color:#666;margin-bottom:2px;'>Ny ordning (2026 →)</div>
+            <div style='display:inline-block;padding:.6rem 1.2rem;border-radius:999px;
+                        background:{BADGE_COLORS[new_label]};color:white;
+                        font-weight:900;font-size:34px;'>
+              {new_label}
+            </div>
+          </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Tekstlig forklaring av forskjellen
+    if delta > 0:
+        diff_text = f"Energikarakteren svekkes med {delta} trinn ({old_label} → {new_label})."
+        diff_color = "#cc4444"
+    elif delta < 0:
+        diff_text = f"Energikarakteren forbedres med {abs(delta)} trinn ({old_label} → {new_label})."
+        diff_color = "#2e8b57"
+    else:
+        diff_text = f"Energikarakteren er uendret ({old_label})."
+        diff_color = "#555555"
+
+    st.markdown(
+        f"""
+        <div style='font-size:12.5px;color:{diff_color};margin-top:6px;'>
+            {diff_text}
+        </div>
+        <div style='font-size:12.5px;color:#666;margin-top:4px;'>
+            Merk: Dette er en forenklet vurdering basert på levert energi (kWh/m²). 
+            Offisiell energiattest beregnes etter NS 3031 i energimerkingsløsningen.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # ---------- HØYRE: formålsfordelt forbruk ----------
 with right:

@@ -330,7 +330,7 @@ with left:
         </div>
         <div style='font-size:12.5px;color:#666;margin-top:4px;'>
             Merk: Dette er en forenklet vurdering basert på levert energi (kWh/m²). 
-            Offisiell energiattest beregnes etter NS 3031 i energimerkingsløsningen.Endringer til den nye standarden (NS 3031:2025), nye klimadata og 
+            Offisiell energiattest beregnes etter NS 3031 i energimerkingsløsningen. Endringer til den nye standarden (NS 3031:2025), nye klimadata og 
         vektingsfaktorer kan gjøre at faktisk ny energikarakter avviker fra denne 
         indikative vurderingen.
         </div>

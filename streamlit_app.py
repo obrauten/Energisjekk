@@ -271,6 +271,16 @@ with left:
         unsafe_allow_html=True
     )
 
+st.markdown(
+    """
+    <div style='font-size:11.5px; color:#777; margin-top:2px;'>
+        *Merk: TEK17 angir <b>netto energibehov</b>, mens tallet her viser <b>levert energi</b>. 
+        De to størrelsene er ikke direkte sammenlignbare.*
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+  
     st.markdown("<div style='height:35px;'></div>", unsafe_allow_html=True)
 
     title("Kalkulert energikarakter – gammel vs. ny ordning")

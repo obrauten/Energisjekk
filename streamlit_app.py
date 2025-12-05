@@ -144,6 +144,234 @@ REF = {
     "Kombinasjon":[350.8,324.0,264.7,230.2,199.2,171.5],
 }
 
+# ---------- TILTAKSTABELL (typisk effekt) ----------
+TILTAK_DATA = [
+    {
+        "Tiltak": "Driftstidsoptimalisering",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "✓",
+        "Typisk besparelse / gjelder for": "5–15 % (ventilasjon/oppvarming)",
+    },
+    {
+        "Tiltak": "Temperatur-senkning natt/helg",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "5–10 % (oppvarming/kjøling)",
+    },
+    {
+        "Tiltak": "Brukeratferd/opplæring",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "2–5 % (totalt)",
+    },
+    {
+        "Tiltak": "Standby-reduksjon/utstyr",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "2–5 % (el-spesifikk)",
+    },
+    {
+        "Tiltak": "EOS (energiovervåking)",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "✓",
+        "Typisk besparelse / gjelder for": "2–10 % (totalt)",
+    },
+    {
+        "Tiltak": "Behovsstyrt ventilasjon",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "10–25 % (ventilasjon)",
+    },
+    {
+        "Tiltak": "Varmegjenvinning ventilasjon",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "20–40 % (ventilasjon/oppvarming)",
+    },
+    {
+        "Tiltak": "Optimalisering varme/kjøl",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "5–15 % (oppvarming/kjøling)",
+    },
+    {
+        "Tiltak": "Effektstyring/lastutjevning",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "✓",
+        "Typisk besparelse / gjelder for": "5–10 % kostnad (effektledd)",
+    },
+    {
+        "Tiltak": "Smart elbillading",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "✓",
+        "Typisk besparelse / gjelder for": "5–10 % kostnad (effektledd)",
+    },
+    {
+        "Tiltak": "LED-belysning",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "30–60 % (belysning)",
+    },
+    {
+        "Tiltak": "Dagslys-/tilstede-styring",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "10–30 % (belysning)",
+    },
+    {
+        "Tiltak": "Varmepumpe",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "40–70 % (oppvarming)",
+    },
+    {
+        "Tiltak": "Solceller",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "Avhengig anlegg (red. kjøpt el)",
+    },
+    {
+        "Tiltak": "Spillvarmegjenvinning",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "20–50 % (prosess/oppvarming)",
+    },
+    {
+        "Tiltak": "Etterisolering tak/vegger",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "10–25 % (oppvarming)",
+    },
+    {
+        "Tiltak": "Utskifting av vinduer",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "✓",
+        "🌞 Overtamp ↓": "✓",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "10–20 % (oppvarming)",
+    },
+    {
+        "Tiltak": "Tetthetstiltak (luftlekkasjer)",
+        "💰 Strøm-regning ↓": "✓",
+        "🏷 Energimerke ↑": "✓",
+        "🌍 CO₂-utslipp ↓": "✓",
+        "🔧 Inneklima": "",
+        "🌞 Overtamp ↓": "",
+        "🛠 Driftskontroll": "",
+        "Typisk besparelse / gjelder for": "5–15 % (oppvarming)",
+    },
+]
+
+TILTAK_DF = pd.DataFrame(TILTAK_DATA)
+
+# hvilke tiltak vi typisk vil fremheve per kategori (kan justeres fritt)
+ANBEFALTE_TILTAK = {
+    "Kontorbygning": [
+        "Driftstidsoptimalisering",
+        "EOS (energiovervåking)",
+        "Behovsstyrt ventilasjon",
+        "Varmegjenvinning ventilasjon",
+        "Optimalisering varme/kjøl",
+        "LED-belysning",
+        "Varmepumpe",
+        "Solceller",
+    ],
+    "Hotellbygning": [
+        "Driftstidsoptimalisering",
+        "Behovsstyrt ventilasjon",
+        "Varmegjenvinning ventilasjon",
+        "Optimalisering varme/kjøl",
+        "Varmepumpe",
+        "Solceller",
+        "Dagslys-/tilstede-styring",
+    ],
+    "Forretningsbygning": [
+        "Driftstidsoptimalisering",
+        "LED-belysning",
+        "Dagslys-/tilstede-styring",
+        "Behovsstyrt ventilasjon",
+        "Varmegjenvinning ventilasjon",
+        "Solceller",
+    ],
+    # fallback for andre kategorier
+    "default": [
+        "Driftstidsoptimalisering",
+        "EOS (energiovervåking)",
+        "Behovsstyrt ventilasjon",
+        "Varmegjenvinning ventilasjon",
+        "Optimalisering varme/kjøl",
+        "Varmepumpe",
+        "Solceller",
+        "LED-belysning",
+    ],
+}
+
 
 # ---------- ENERGIKARAKTER ----------
 
@@ -455,7 +683,36 @@ with right:
     buf_bar.seek(0)
     st.image(buf_bar, width=480)
 
+# ---------- TILTAK: ANBEFALTE FOR DENNE BYGNINGEN ----------
+title("Tiltak som ofte gir effekt for denne type bygg")
 
+anb_liste = ANBEFALTE_TILTAK.get(kategori, ANBEFALTE_TILTAK["default"])
+df_anb = TILTAK_DF[TILTAK_DF["Tiltak"].isin(anb_liste)].copy()
+
+st.markdown(
+    f"""
+    <div style='font-size:13px;color:#444;margin-bottom:6px;'>
+        Listen under viser typiske tiltak som kan redusere energibruk og i mange tilfeller 
+        forbedre energimerkingen for <b>{kategori.lower()}</b>. 
+        Spareintervallene er generelle anslag – nøyaktig effekt må vurderes i en energikartlegging.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.dataframe(
+    df_anb.set_index("Tiltak"),
+    use_container_width=True,
+    height=min(480, 39 * len(df_anb) + 38),
+)
+
+with st.expander("Se full oversikt over tiltak og effekter"):
+    st.dataframe(
+        TILTAK_DF.set_index("Tiltak"),
+        use_container_width=True,
+        height=min(650, 39 * len(TILTAK_DF) + 38),
+    )
+  
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):
     st.markdown("""

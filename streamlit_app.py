@@ -110,7 +110,7 @@ with c3:
 
 sp = arsforbruk / areal
 
-vis_tiltak = False  # Sett til True når du vil aktivere
+vis_tiltak = True  # Sett til True når du vil aktivere
 
 # ---------- FORMÅLSFORDELING ----------
 SHARES = {

@@ -110,6 +110,8 @@ with c3:
 
 sp = arsforbruk / areal
 
+vis_tiltak = False  # Sett til True når du vil aktivere
+
 # ---------- FORMÅLSFORDELING ----------
 SHARES = {
     "Barnehage":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":14,"Belysning":9,"El.spesifikk":13,"Kjøling":0},
@@ -877,35 +879,22 @@ with right:
     buf_bar.seek(0)
     st.image(buf_bar, width=480)
 
-# ---------- TILTAK: ANBEFALTE FOR DENNE BYGNINGEN ----------
-title("Tiltak som ofte gir effekt for denne type bygg")
+if vis_tiltak:
+    # --- Tiltakskode her ---
+    title("Tiltak som ofte gir effekt for denne typen bygg")
 
-anb_liste = ANBEFALTE_TILTAK.get(kategori, ANBEFALTE_TILTAK["default"])
-df_anb = TILTAK_DF[TILTAK_DF["Tiltak"].isin(anb_liste)].copy()
+    anb_liste = ANBEFALTE_TILTAK.get(kategori, ANBEFALTE_TILTAK["default"])
+    df_anb = TILTAK_DF[TILTAK_DF["Tiltak"].isin(anb_liste)].copy()
 
-st.markdown(
-    f"""
-    <div style='font-size:13px;color:#444;margin-bottom:6px;'>
-        Listen under viser typiske tiltak som kan redusere energibruk og i mange tilfeller 
-        forbedre energimerkingen for <b>{kategori.lower()}</b>. 
-        Spareintervallene er generelle anslag – nøyaktig effekt må vurderes i en energikartlegging.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.dataframe(
-    df_anb.set_index("Tiltak"),
-    use_container_width=True,
-    height=min(480, 39 * len(df_anb) + 38),
-)
-
-with st.expander("Se full oversikt over tiltak og effekter"):
     st.dataframe(
-        TILTAK_DF.set_index("Tiltak"),
+        df_anb.set_index("Tiltak"),
         use_container_width=True,
-        height=min(650, 39 * len(TILTAK_DF) + 38),
     )
+
+    with st.expander("Se full oversikt over tiltak og effekter"):
+        st.dataframe(
+            TILTAK_DF.set_index("Tiltak"),
+            use_container_width=True,
   
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

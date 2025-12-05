@@ -189,7 +189,7 @@ TILTAK_DATA = [
     {
         "Tiltak": "EOS (energiovervåking)",
         "💰 Strøm-regning ↓": "✓",
-        "🏷 Energimerke ↑": "✓",
+        "🏷 Energimerke ↑": "",
         "🌍 CO₂-utslipp ↓": "✓",
         "🔧 Inneklima": "",
         "🌞 Overtamp ↓": "",

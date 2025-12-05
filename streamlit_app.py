@@ -895,6 +895,7 @@ if vis_tiltak:
         st.dataframe(
             TILTAK_DF.set_index("Tiltak"),
             use_container_width=True,
+        )
   
 # ---------- KILDER ----------
 with st.expander("Kilder og forutsetninger", expanded=False):

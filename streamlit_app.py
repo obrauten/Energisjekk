@@ -776,10 +776,7 @@ with left:
             {diff_text}
         </div>
         <div style='font-size:12.5px;color:#666;margin-top:4px;'>
-            Merk: Dette er en forenklet vurdering basert på faktisk levert energi (kWh/m²). 
-            Offisiell energiattest beregnes etter NS 3031. Endringer til den nye standarden (NS 3031:2025), nye klimadata og 
-        vektingsfaktorer kan gjøre at faktisk ny energikarakter avviker fra denne 
-        indikative vurderingen.
+            Merk: Dette er en forenklet vurdering basert på rapportert levert energi (kWh/m² BRA), kombinert med normerte formålsandeler for valgt bygningskategori. Offisiell energiattest beregnes etter NS 3031 med detaljerte inndata for energibærere, klima, brukstid og tekniske anlegg. Endringer til den nye standarden (NS 3031:2025), nye klimadata og vektingsfaktorer kan gjøre at faktisk ny energikarakter avviker fra denne indikative vurderingen.
         </div>
         """,
         unsafe_allow_html=True

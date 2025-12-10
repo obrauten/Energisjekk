@@ -110,24 +110,6 @@ with c3:
 
 sp = arsforbruk / areal
 
-# --- Valg for fjernvarme (påvirker kun NY energikarakter) ---
-har_fjernvarme = st.checkbox(
-    "Bygget har fjernvarme som hovedoppvarming",
-    value=False,
-    help="Brukes kun til en forenklet vekting i ny energikarakter (oppvarming vektes 0,45).",
-)
-
-# Andel oppvarming fra formålsfordelingen (NVE 2016:24)
-andel_oppvarming = SHARES[kategori]["Oppvarming"] / 100.0
-
-# Spesifikt årsforbruk som brukes til NY energikarakter
-if har_fjernvarme:
-    sp_oppvarming = sp * andel_oppvarming
-    sp_øvrig = sp - sp_oppvarming
-    sp_ny_vektet = sp_øvrig + sp_oppvarming * 0.45
-else:
-    sp_ny_vektet = sp
-
 # --- Valg for tiltak
 
 vis_tiltak = False  # Sett til True når du vil aktivere
@@ -147,6 +129,24 @@ SHARES = {
     "Lett industribygning, verksted":{"Oppvarming":63,"Tappevann":2,"Ventilasjon":5,"Belysning":13,"El.spesifikk":15,"Kjøling":2},
     "Kombinasjon":{"Oppvarming":61,"Tappevann":5,"Ventilasjon":10,"Belysning":15,"El.spesifikk":9,"Kjøling":0},
 }
+
+# --- Valg for fjernvarme (påvirker kun NY energikarakter) ---
+har_fjernvarme = st.checkbox(
+    "Bygget har fjernvarme som hovedoppvarming",
+    value=False,
+    help="Brukes kun til en forenklet vekting i ny energikarakter (oppvarming vektes 0,45).",
+)
+
+# Andel oppvarming fra formålsfordelingen (NVE 2016:24)
+andel_oppvarming = SHARES[kategori]["Oppvarming"] / 100.0
+
+# Spesifikt årsforbruk som brukes til NY energikarakter
+if har_fjernvarme:
+    sp_oppvarming = sp * andel_oppvarming
+    sp_øvrig = sp - sp_oppvarming
+    sp_ny_vektet = sp_øvrig + sp_oppvarming * 0.45
+else:
+    sp_ny_vektet = sp
 
 
 # ---------- REFERANSER TIL SØYLE ----------

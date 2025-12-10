@@ -783,7 +783,7 @@ with left:
     unsafe_allow_html=True,
 )
 
-if har_fjernvarme:
+    if har_fjernvarme:
     st.markdown(
         f"""
         <div style='font-size:11.5px;color:#666;margin-top:4px;'>
@@ -795,7 +795,7 @@ if har_fjernvarme:
         unsafe_allow_html=True,
     )
 
- # Hvor mye må energibruken ned for å nå neste karakter (ny ordning)?
+   # Hvor mye må energibruken ned for å nå neste karakter (ny ordning)?
     if better_label is None:
         improve_text = "Bygget har allerede beste mulige karakter (A) i ny ordning."
     elif dk_m2 <= 0:

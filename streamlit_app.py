@@ -770,7 +770,7 @@ with left:
         diff_text = f"Energikarakteren er uendret ({old_label})."
         diff_color = "#555555"
 
-    sst.markdown(
+    st.markdown(
     """
     <div style='font-size:12.5px;color:#666;margin-top:4px;'>
         Merk: Dette er en forenklet vurdering basert på rapportert levert energi (kWh/m² BRA) 

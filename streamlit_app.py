@@ -759,7 +759,7 @@ with left:
         unsafe_allow_html=True
     )
 
-    # Tekstlig forklaring av forskjellen
+# Tekstlig forklaring av forskjellen
     if delta > 0:
         diff_text = f"Energikarakteren svekkes med {delta} trinn ({old_label} → {new_label})."
         diff_color = "#cc4444"
@@ -771,31 +771,31 @@ with left:
         diff_color = "#555555"
 
     st.markdown(
-    """
-    <div style='font-size:12.5px;color:#666;margin-top:4px;'>
-        Merk: Dette er en forenklet vurdering basert på rapportert levert energi (kWh/m² BRA) 
-        og normerte formålsandeler for valgt bygningskategori. Offisiell energiattest beregnes 
-        etter NS 3031 med detaljerte inndata for energibærere, klima, brukstid og tekniske anlegg. 
-        Endringer til den nye standarden (NS 3031:2025), nye klimadata og vektingsfaktorer kan gjøre 
-        at faktisk ny energikarakter avviker fra denne indikative vurderingen.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-    if har_fjernvarme:
-    st.markdown(
-        f"""
-        <div style='font-size:11.5px;color:#666;margin-top:4px;'>
-            For ny energikarakter er oppvarmingsandelen (ca. {andel_oppvarming*100:.0f} %) 
-            vektet med faktor 0,45 i tråd med ny energimerkeordning for fjernvarme. 
-            Dette er en forenklet tilnærming og erstatter ikke en full NS 3031-beregning.
+        """
+        <div style='font-size:12.5px;color:#666;margin-top:4px;'>
+            Merk: Dette er en forenklet vurdering basert på rapportert levert energi (kWh/m² BRA) 
+            og normerte formålsandeler for valgt bygningskategori. Offisiell energiattest beregnes 
+            etter NS 3031 med detaljerte inndata for energibærere, klima, brukstid og tekniske anlegg. 
+            Endringer til den nye standarden (NS 3031:2025), nye klimadata og vektingsfaktorer kan gjøre 
+            at faktisk ny energikarakter avviker fra denne indikative vurderingen.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-   # Hvor mye må energibruken ned for å nå neste karakter (ny ordning)?
+    if har_fjernvarme:
+        st.markdown(
+            f"""
+            <div style='font-size:11.5px;color:#666;margin-top:4px;'>
+                For ny energikarakter er oppvarmingsandelen (ca. {andel_oppvarming*100:.0f} %) 
+                vektet med faktor 0,45 i tråd med ny energimerkeordning for fjernvarme. 
+                Dette er en forenklet tilnærming og erstatter ikke en full NS 3031-beregning.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Hvor mye må energibruken ned for å nå neste karakter (ny ordning)?
     if better_label is None:
         improve_text = "Bygget har allerede beste mulige karakter (A) i ny ordning."
     elif dk_m2 <= 0:
@@ -823,7 +823,7 @@ with left:
 
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 # ---------- HØYRE: formålsfordelt forbruk ----------
 with right:

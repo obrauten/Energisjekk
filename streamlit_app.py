@@ -110,6 +110,26 @@ with c3:
 
 sp = arsforbruk / areal
 
+# --- Valg for fjernvarme (påvirker kun NY energikarakter) ---
+har_fjernvarme = st.checkbox(
+    "Bygget har fjernvarme som hovedoppvarming",
+    value=False,
+    help="Brukes kun til en forenklet vekting i ny energikarakter (oppvarming vektes 0,45).",
+)
+
+# Andel oppvarming fra formålsfordelingen (NVE 2016:24)
+andel_oppvarming = SHARES[kategori]["Oppvarming"] / 100.0
+
+# Spesifikt årsforbruk som brukes til NY energikarakter
+if har_fjernvarme:
+    sp_oppvarming = sp * andel_oppvarming
+    sp_øvrig = sp - sp_oppvarming
+    sp_ny_vektet = sp_øvrig + sp_oppvarming * 0.45
+else:
+    sp_ny_vektet = sp
+
+# --- Valg for tiltak
+
 vis_tiltak = False  # Sett til True når du vil aktivere
 
 # ---------- FORMÅLSFORDELING ----------
@@ -604,8 +624,11 @@ NEW_THRESH = {
     "Kombinasjon":dict(A=80,B=95,C=165,D=230,E=300,F=370),
 }
 
+# Gammel ordning: alltid basert på uvektet levert energi
 old_label = energy_label(sp, OLD_THRESH.get(kategori, OLD_THRESH["Kombinasjon"]))
-new_label = energy_label(sp, NEW_THRESH.get(kategori, NEW_THRESH["Kombinasjon"]))
+
+# Ny ordning: tar hensyn til fjernvarme hvis valgt (oppvarming vektes 0,45)
+new_label = energy_label(sp_ny_vektet, NEW_THRESH.get(kategori, NEW_THRESH["Kombinasjon"]))
 
 order = ["A","B","C","D","E","F","G"]
 delta = order.index(new_label) - order.index(old_label)
@@ -626,7 +649,7 @@ def improvement_to_better_grade(sp, kategori, thresholds, current_label, areal):
     return better_label, needed_kwh_m2, needed_pct, needed_kwh_tot
 
 better_label, dk_m2, dk_pct, dk_tot = improvement_to_better_grade(
-    sp, kategori, NEW_THRESH, new_label, areal
+    sp_ny_vektet, kategori, NEW_THRESH, new_label, areal
 )
 
 # ---------- LAYOUT ----------
